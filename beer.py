@@ -1,14 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-def banner():
-	print( "" )
-	print( "╻ ╻   ┏┓ ┏━╸┏━╸┏━┓   ╻" )
-	print( "╺╋╸   ┣┻┓┣╸ ┣╸ ┣┳┛   ╹" )
-	print( "╹ ╹   ┗━┛┗━╸┗━╸╹┗╸   ╹" )
-	print( "╺━━━━━━━━━━━━━━━━━━━━╸" )
-	
+from util import *
+from units import *
 
 if __name__ == "__main__":
 	banner()
-	
+	a = unit.Unit()
