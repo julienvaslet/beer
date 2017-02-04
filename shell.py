@@ -19,7 +19,7 @@ class Shell():
 				"description": "Exits the current shell.",
 				"function": self.exit
 			},
-			"quit": { "alias": "exit" },
+			"quit": { "alias": "exit" }
 		}
 		
 		
@@ -32,12 +32,26 @@ class Shell():
 		
 	def log( self, message, level=1 ):
 		if level <= self._verbosity:
-			print( "[*] %s" % message )
+			self.print( message, leftText="[*]", lpad=4 )
 			
 			
 	def exit( self, args=[] ):
-		self.log( "Exiting" )
 		self._running = False
+		
+		
+	def print( self, message, end="\n", leftText="", lpad=0 ):
+		lineLength = self._width - lpad
+		linesPrinted = 0
+		i = 0
+		
+		while i < len( message ):
+			pad = leftText if i == 0 else ""
+			line = message[i:i+lineLength]
+			i += lineLength
+			print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
+			linesPrinted += 1
+		
+		return linesPrinted
 	
 	
 	def help( self, args=[] ):
@@ -54,25 +68,8 @@ class Shell():
 		
 		for command in self._commands:
 			if "alias" not in self._commands[command]:
-				print( command.ljust( commandNameLength ), end="" )
-				
-				lines = 1
-				
-				# Print command description
-				if "description" in self._commands[command]:
-					i = 0
-					lineLength = self._width - commandNameLength
-					
-					while i < len( self._commands[command]["description"] ):
-						if i > 0:
-							print( "".ljust( commandNameLength ), end="" )
-							lines += 1
-							
-						print( self._commands[command]["description"][i:i+lineLength] )
-						i += lineLength
-						
-				else:
-					print( "No description available." )
+				description = self._commands[command]["description"] if "description" in self._commands[command] else "No description available."
+				lines = self.print( description, leftText=command, lpad=commandNameLength )
 					
 				# Look for command aliases
 				aliases = []
@@ -82,25 +79,9 @@ class Shell():
 						aliases.append( alias )
 				
 				# Print aliases' list if any
-				# WARN: if alias name is larger than shell width -> infinite loop
 				if len(aliases):
-					aliasTitle = "Aliases:"
-					lineLength = self._width - commandNameLength - len(aliasTitle)
-					
-					print( "%s%s" % ( "".ljust( commandNameLength ), aliasTitle ), end="" )
-					
-					aliasLine = ""
-					
-					for alias in aliases:
-						if len(aliasLine) + len(alias) + 1 > lineLength:
-							print( aliasLine )
-							aliasLine = "".ljust( commandNameLength + len(aliasTitle) )
-							lines += 1
-							
-						aliasLine += " %s," % alias
-					
-					print( aliasLine[:len(aliasLine)-1] )
-					lines += 1
+					aliasTitle = "%sAliases: " % "".ljust( commandNameLength )
+					lines += self.print( ", ".join( aliases ), leftText=aliasTitle, lpad=len( aliasTitle ) )
 				
 				# If the command's information is larger than 1 line, empty line is added
 				if lines > 1:
@@ -118,6 +99,8 @@ class Shell():
 				commandline = input()
 				command = None
 			
+				# Parse arguments
+				# TODO: Parse "" literals as one argument 
 				args = list( filter( len, separatorPattern.split( commandline.strip() ) ) )
 
 				if len( args ) == 0:
