@@ -7,9 +7,4 @@ def banner():
 	print( "╹ ╹   ┗━┛┗━╸┗━╸╹┗╸   ╹" )
 	print( "╺━━━━━━━━━━━━━━━━━━━━╸" )
 
-def log( message ):
-	print( "[*] %s" % message )
-	
-def error( message ):
-	print( "[!] %s" % message )
 

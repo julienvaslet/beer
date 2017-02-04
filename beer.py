@@ -3,7 +3,11 @@
 
 from util import *
 from units import *
+from shell import Shell
 
 if __name__ == "__main__":
 	banner()
-	a = unit.Unit()
+	
+	shell = Shell( "beer" )
+	shell.run()
+	#a = unit.Unit()
