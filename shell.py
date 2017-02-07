@@ -6,6 +6,68 @@ import os
 import tty
 import termios
 
+escapeSequences = [
+	b"\x1b",
+	b"\x1b[",
+	b"\x1b[1",		# Home, End
+	b"\x1b[1;",
+	b"\x1b[1;2",	# Ctrl+[Up,Down]
+	b"\x1b[1;3",	# Alt+[Up,Down,Left,Right]
+	b"\x1b[1;4",	# Maj+Alt+[F2,F3,F4]
+	b"\x1b[1;5",	# Ctrl+[Left,Right]
+	b"\x1b[1;6",	# Ctrl+Maj+[Left,Right]
+	b"\x1b[15",		# F5
+	b"\x1b[15;",
+	b"\x1b[15;2",	# Maj+F5
+	b"\x1b[15;4",	# Alt+Maj+F5
+	b"\x1b[15;5",	# Ctrl+F5
+	b"\x1b[17",		# F6
+	b"\x1b[17;",
+	b"\x1b[17;2",	# Maj+F6
+	b"\x1b[17;5",	# Ctrl+F6
+	b"\x1b[18",		# F7
+	b"\x1b[18;",
+	b"\x1b[18;2",	# Maj+F7
+	b"\x1b[18;4",	# Alt+Maj+F7
+	b"\x1b[18;5",	# Ctrl+F7
+	b"\x1b[19",		# F8
+	b"\x1b[19;",
+	b"\x1b[19;2",	# Maj+F8
+	b"\x1b[19;4",	# Alt+Maj+F8
+	b"\x1b[19;5",	# Ctrl+F8
+	b"\x1b[2",		# Insert
+	b"\x1b[2;",
+	b"\x1b[2;3",	# Maj+Insert
+	b"\x1b[2;6",	# Ctrl+Maj+Insert
+	b"\x1b[20",		# F9
+	b"\x1b[20;",
+	b"\x1b[20;2",	# Maj+F9
+	b"\x1b[20;4",	# Alt+Maj+F9
+	b"\x1b[20;5",	# Ctrl+F9
+	b"\x1b[24",		# F12
+	b"\x1b[24;",
+	b"\x1b[24;2",	# Maj+F12
+	b"\x1b[24;4",	# Alt+Maj+F12
+	b"\x1b[24;5",	# Ctrl+F12
+	b"\x1b[3",		# Delete
+	b"\x1b[3;",
+	b"\x1b[3;2",	# Maj+Delete
+	b"\x1b[3;3",	# Alt+Delete
+	b"\x1b[3;4",	# Alt+Maj+Delete
+	b"\x1b[3;5",	# Ctrl+Delete
+	b"\x1b[3;6",	# Ctrl+Maj+Delete
+	b"\x1b[5",		# Page-Up
+	b"\x1b[5;",
+	b"\x1b[5;3",	# Alt+Page-Up
+	b"\x1b[6",		# Page-Down
+	b"\x1b[6;",
+	b"\x1b[6;3",	# Alt+Page-Down
+	b"\x1bO",		# F2, F3, F4
+	b"\xc3"			# Unicode
+]
+
+wordSeparators = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
+
 class Shell():
 
 	def __init__( self, title="" ):
@@ -43,7 +105,7 @@ class Shell():
 	
 	
 	def getch( self ):
-		character = None
+		sequence = b""
 
 		fd = sys.stdin.fileno()
 		oldSettings = termios.tcgetattr( fd )
@@ -55,12 +117,18 @@ class Shell():
 		termios.tcsetattr( fd, termios.TCSANOW, newSettings )
 
 		try:
-			character = os.read( fd, 4 )
+			complete = False
+			
+			while not complete:
+				sequence += os.read( fd, 1 )
+			
+				if sequence not in escapeSequences:
+					complete = True
 
 		finally:
 			termios.tcsetattr( fd, termios.TCSADRAIN, oldSettings )
 
-		return character
+		return sequence
 
 
 	def input( self, prompt="" ):
@@ -71,14 +139,17 @@ class Shell():
 		line = ""
 		lineIndex = 0
 		lastLineIndex = 0
+		lastLength = 0
 		lineRead = False
 		
 		while not lineRead:
 			rawkey = self.getch()
 			rewriteLine = False
+			shouldBeep = False
 			
 			try:
 				key = rawkey.decode( "utf-8" )
+				#print( rawkey )
 				
 			except UnicodeDecodeError:
 				continue
@@ -86,6 +157,16 @@ class Shell():
 			# End of line
 			if key == "\x0a":
 				lineRead = True
+				
+			# Home
+			elif key == "\x1b[H":
+				lineIndex = 0
+				rewriteLine = True
+				
+			# End
+			elif key == "\x1b[F":
+				lineIndex = len(line)
+				rewriteLine = True
 			
 			# Tabulation
 			#elif key == "\x09":
@@ -107,7 +188,21 @@ class Shell():
 					rewriteLine = True
 				
 				else:
-					os.write( sys.stdout.fileno(), b'\x07' )
+					shouldBeep = True
+					
+			# Ctrl+Left
+			# Jump at the beginning of the word
+			elif key == "\x1b[1;5D":
+			
+				# Purge separators
+				while lineIndex > 0 and line[lineIndex - 1] in wordSeparators:
+					lineIndex -= 1
+			
+				# Jump at the beginning of current word
+				while lineIndex > 0 and line[lineIndex - 1] not in wordSeparators:
+					lineIndex -= 1
+					
+				rewriteLine = True
 			
 			# Right
 			elif key == "\x1b[C":
@@ -117,16 +212,31 @@ class Shell():
 					rewriteLine = True
 				
 				else:
-					os.write( sys.stdout.fileno(), b'\x07' )
+					shouldBeep = True
+			
+			# Ctrl+Right
+			# Jump at the end of the word
+			elif key == "\x1b[1;5C":
+			
+				# Purge separators
+				while lineIndex < len(line) and line[lineIndex] in wordSeparators:
+					lineIndex += 1
+			
+				# Jump at the next separator
+				while lineIndex < len(line) and line[lineIndex] not in wordSeparators:
+					lineIndex += 1
+					
+				rewriteLine = True
 				
 			# Backspace
 			elif key == "\x7f":
 				if len(line) > 0 and lineIndex > 0:
 					line = line[:lineIndex - 1] + line[lineIndex:]
+					lineIndex -= 1
 					rewriteLine = True
 					
 				else:
-					os.write( sys.stdout.fileno(), b'\x07' )
+					shouldBeep = True
 				
 			# Printable character
 			elif len(key) == 1 and ord(key) >= 32:
@@ -135,17 +245,32 @@ class Shell():
 				
 				rewriteLine = True
 		
+		
 			# Print the line to the console
 			if rewriteLine:
 				for i in range( 0, lastLineIndex ):
 					os.write( sys.stdout.fileno(), b'\b' )
 					
-				os.write( sys.stdout.fileno(), line.encode( "ASCII" ) )
+				os.write( sys.stdout.fileno(), line.encode() )
+				
+				if lastLength > len(line):
+					for i in range( 0,lastLength - len(line) ):
+						os.write( sys.stdout.fileno(), b' ' )
+						
+					for i in range( 0,lastLength - len(line) ):
+						os.write( sys.stdout.fileno(), b'\b' )
 				
 				for i in range( 0, len(line) - lineIndex ):
 					os.write( sys.stdout.fileno(), b'\b' )
-					
-				lastLineIndex = lineIndex
+			
+			# Emits console beep
+			elif shouldBeep:
+				os.write( sys.stdout.fileno(), b'\x07' )
+			
+			
+			lastLineIndex = lineIndex
+			lastLength = len(line)
+				
 		
 		os.write( sys.stdout.fileno(), b'\n' )
 		return line
