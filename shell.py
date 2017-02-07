@@ -249,30 +249,30 @@ class Shell():
 			# Print the line to the console
 			if rewriteLine:
 				for i in range( 0, lastLineIndex ):
-					os.write( sys.stdout.fileno(), b'\b' )
+					os.write( sys.stdout.fileno(), b"\b" )
 					
 				os.write( sys.stdout.fileno(), line.encode() )
 				
 				if lastLength > len(line):
 					for i in range( 0,lastLength - len(line) ):
-						os.write( sys.stdout.fileno(), b' ' )
+						os.write( sys.stdout.fileno(), b" " )
 						
 					for i in range( 0,lastLength - len(line) ):
-						os.write( sys.stdout.fileno(), b'\b' )
+						os.write( sys.stdout.fileno(), b"\b" )
 				
 				for i in range( 0, len(line) - lineIndex ):
-					os.write( sys.stdout.fileno(), b'\b' )
+					os.write( sys.stdout.fileno(), b"\b" )
 			
 			# Emits console beep
 			elif shouldBeep:
-				os.write( sys.stdout.fileno(), b'\x07' )
+				os.write( sys.stdout.fileno(), b"\x07" )
 			
 			
 			lastLineIndex = lineIndex
 			lastLength = len(line)
 				
 		
-		os.write( sys.stdout.fileno(), b'\n' )
+		os.write( sys.stdout.fileno(), b"\n" )
 		return line
 		
 		
@@ -327,7 +327,7 @@ class Shell():
 				
 	def run( self, args=[] ):
 		self._running = True
-		separatorPattern = re.compile( '\s+' )
+		separatorPattern = re.compile( "\s+" )
 		
 		while self._running:
 			try:

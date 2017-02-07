@@ -10,9 +10,11 @@ if __name__ == "__main__":
 	banner()
 	shell = Shell( "beer" )
 	
-	shell.print( "Recipes: %d" % 0, lpad=3 )
-	shell.print( "Malts: %d" % 0, lpad=3 )
-	shell.print( "Hops: %d\n" % 0, lpad=3 )
+	shell.print( " " )
+	shell.log( "Recipes: %d" % 0 )
+	shell.log( "Malts: %d" % 0 )
+	shell.log( "Hops: %d" % 0 )
+	shell.print( " " )
 	
 	shell.run()
 	#a = unit.Unit()
