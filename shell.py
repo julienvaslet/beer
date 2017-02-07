@@ -2,6 +2,9 @@
 
 import sys
 import re
+import os
+import tty
+import termios
 
 class Shell():
 
@@ -37,6 +40,115 @@ class Shell():
 			
 	def exit( self, args=[] ):
 		self._running = False
+	
+	
+	def getch( self ):
+		character = None
+
+		fd = sys.stdin.fileno()
+		oldSettings = termios.tcgetattr( fd )
+		newSettings = termios.tcgetattr( fd )
+		newSettings[3] = newSettings[3] & ~termios.ICANON & ~termios.ECHO
+		newSettings[6][termios.VMIN] = 1
+		newSettings[6][termios.VTIME] = 0
+
+		termios.tcsetattr( fd, termios.TCSANOW, newSettings )
+
+		try:
+			character = os.read( fd, 4 )
+
+		finally:
+			termios.tcsetattr( fd, termios.TCSADRAIN, oldSettings )
+
+		return character
+
+
+	def input( self, prompt="" ):
+		
+		if len( prompt ):
+			os.write( sys.stdout.fileno(), prompt.encode( "ASCII" ) )
+		
+		line = ""
+		lineIndex = 0
+		lastLineIndex = 0
+		lineRead = False
+		
+		while not lineRead:
+			rawkey = self.getch()
+			rewriteLine = False
+			
+			try:
+				key = rawkey.decode( "utf-8" )
+				
+			except UnicodeDecodeError:
+				continue
+			
+			# End of line
+			if key == "\x0a":
+				lineRead = True
+			
+			# Tabulation
+			#elif key == "\x09":
+			#	print( "TAAABS" )
+				
+			# Up
+			#elif key == "\x1b[A":
+			#	print( "UUUUP" )
+				
+			# Down
+			#elif key == "\x1b[B":
+			#	print( "DOOOWN" )
+			
+			# Left
+			elif key == "\x1b[D":
+			
+				if lineIndex > 0:
+					lineIndex -= 1
+					rewriteLine = True
+				
+				else:
+					os.write( sys.stdout.fileno(), b'\x07' )
+			
+			# Right
+			elif key == "\x1b[C":
+			
+				if lineIndex < len(line):
+					lineIndex += 1
+					rewriteLine = True
+				
+				else:
+					os.write( sys.stdout.fileno(), b'\x07' )
+				
+			# Backspace
+			elif key == "\x7f":
+				if len(line) > 0 and lineIndex > 0:
+					line = line[:lineIndex - 1] + line[lineIndex:]
+					rewriteLine = True
+					
+				else:
+					os.write( sys.stdout.fileno(), b'\x07' )
+				
+			# Printable character
+			elif len(key) == 1 and ord(key) >= 32:
+				line = line[:lineIndex] + key + line[lineIndex:]
+				lineIndex += 1
+				
+				rewriteLine = True
+		
+			# Print the line to the console
+			if rewriteLine:
+				for i in range( 0, lastLineIndex ):
+					os.write( sys.stdout.fileno(), b'\b' )
+					
+				os.write( sys.stdout.fileno(), line.encode( "ASCII" ) )
+				
+				for i in range( 0, len(line) - lineIndex ):
+					os.write( sys.stdout.fileno(), b'\b' )
+					
+				lastLineIndex = lineIndex
+		
+		os.write( sys.stdout.fileno(), b'\n' )
+		return line
 		
 		
 	def print( self, message, end="\n", leftText="", lpad=0 ):
@@ -94,9 +206,7 @@ class Shell():
 		
 		while self._running:
 			try:
-				# history navigation: start a thread that look for UP, DOWN, TAB keys
-				print( self._title, end=' > ' )
-				commandline = input()
+				commandline = self.input( "%s > " % self._title )
 				command = None
 			
 				# Parse arguments
