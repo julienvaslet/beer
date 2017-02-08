@@ -124,23 +124,72 @@ class Shell():
 			termios.tcsetattr( fd, termios.TCSADRAIN, oldSettings )
 
 		return sequence
+		
+		
+	def autocomplete( self, line ):
+		choices = []
+		
+		args = self.parseLine( line )
+		
+		if len(args) == 1:
+			for commandName in self._commands:
+				if commandName[:len(args[0])] == args[0]:
+					choices.append( commandName )
+		
+		return choices
+		
+		
+	def parseLine( self, line ):
+	
+		separatorPattern = re.compile( "\s+" )
+		# TODO: Parse "" literals as one argument
+		# TODO: add empty trailing argument if last character is space, (autocompletion need)
+		args = list( filter( len, separatorPattern.split( line.strip() ) ) )
+		
+		return args
 
 
 	def input( self, prompt="" ):
-		
-		if len( prompt ):
-			os.write( sys.stdout.fileno(), prompt.encode( "ASCII" ) )
 		
 		line = ""
 		lineIndex = 0
 		lastLineIndex = 0
 		lastLength = 0
 		lineRead = False
+		rewriteLine = False
+		shouldBeep = False
+		newLine = True
 		
 		while not lineRead:
-			rawkey = self.getch()
+		
+			# Print the line to the console
+			if newLine:
+				output = prompt + line + "\b" * (len(line) - lineIndex)
+				os.write( sys.stdout.fileno(), output.encode() )
+				
+				newLine = False
+			
+			elif rewriteLine:
+				output = ("\b" * lastLineIndex) + line
+				
+				if lastLength > len(line):
+					output += " " * (lastLength - len(line))
+					output += "\b" * (lastLength - len(line))
+					
+				output += "\b" * (len(line) - lineIndex)
+				
+				os.write( sys.stdout.fileno(), output.encode() )
+			
+			# Emits console beep
+			elif shouldBeep:
+				os.write( sys.stdout.fileno(), b"\x07" )
+			
 			rewriteLine = False
 			shouldBeep = False
+			lastLineIndex = lineIndex
+			lastLength = len(line)
+		
+			rawkey = self.getch()
 			
 			try:
 				key = rawkey.decode( "utf-8" )
@@ -164,8 +213,44 @@ class Shell():
 				rewriteLine = True
 			
 			# Tabulation
-			#elif key == "\x09":
-			#	print( "TAAABS" )
+			elif key == "\x09":
+				choices = self.autocomplete( line )
+				
+				if len(choices) > 0:
+					if len(choices) == 1:
+						args = self.parseLine( line )
+						args[len(args) - 1] = choices[0]
+						
+						line = " ".join( args )
+						lineIndex = len(line)
+						rewriteLine = True
+						
+					else:
+						# Prints available choices
+						maxChoiceLength = 0
+						
+						for choice in choices:
+							if len(choice) > maxChoiceLength:
+								maxChoiceLength = len(choice)
+								
+						maxChoiceLength += 2
+						choiceLineLength = 0
+						
+						output = "\n"
+						
+						for choice in choices:
+							if choiceLineLength + maxChoiceLength > self._width:
+								choiceLineLength = 0
+								output += "\n"
+								
+							output += choice.ljust( maxChoiceLength )
+							
+						output += "\n"
+						
+						os.write( sys.stdout.fileno(), output.encode() )
+						newLine = True
+				else:
+					shouldBeep = True
 				
 			# Up
 			#elif key == "\x1b[A":
@@ -249,27 +334,6 @@ class Shell():
 				
 				rewriteLine = True
 		
-		
-			# Print the line to the console
-			if rewriteLine:
-				output = ("\b" * lastLineIndex) + line
-				
-				if lastLength > len(line):
-					output += " " * (lastLength - len(line))
-					output += "\b" * (lastLength - len(line))
-					
-				output += "\b" * (len(line) - lineIndex)
-					
-				os.write( sys.stdout.fileno(), output.encode() )
-			
-			# Emits console beep
-			elif shouldBeep:
-				os.write( sys.stdout.fileno(), b"\x07" )
-			
-			
-			lastLineIndex = lineIndex
-			lastLength = len(line)
-		
 		os.write( sys.stdout.fileno(), b"\n" )
 		return line
 		
@@ -314,16 +378,13 @@ class Shell():
 				
 	def run( self, args=[] ):
 		self._running = True
-		separatorPattern = re.compile( "\s+" )
 		
 		while self._running:
 			try:
 				commandline = self.input( "%s > " % self._title )
 				command = None
 			
-				# Parse arguments
-				# TODO: Parse "" literals as one argument 
-				args = list( filter( len, separatorPattern.split( commandline.strip() ) ) )
+				args = self.parseLine( commandline )
 
 				if len( args ) == 0:
 					continue
