@@ -6,6 +6,8 @@ import os
 import tty
 import termios
 
+from .command import *
+
 escapeSequences = [
 	b"\x1b",
 	b"\x1b[",
@@ -75,17 +77,10 @@ class Shell():
 		self._width = 80
 		self._running = False
 		self._verbosity = 1
-		self._commands = {
-			"help": {
-				"description": "Shows this help message.",
-				"function": self.help
-			},
-			"exit": {
-				"description": "Exits the current shell.",
-				"function": self.exit
-			},
-			"quit": { "alias": "exit" }
-		}
+		self._commands = {}
+		
+		self.addCommand( ExitCommand() )
+		self.addCommand( HelpCommand() )
 		
 		
 	def error( self, message, code=0 ):
@@ -292,41 +287,30 @@ class Shell():
 			linesPrinted += 1
 		
 		return linesPrinted
-	
-	
-	def help( self, args=[] ):
-		print( "List of the available commands:\n" )
 		
-		commandNameLength = 0
-		
-		for command in self._commands:
-			if "alias" not in self._commands[command]:
-				if commandNameLength < len(command):
-					commandNameLength = len(command)
 	
-		commandNameLength += 4
-		
-		for command in self._commands:
-			if "alias" not in self._commands[command]:
-				description = self._commands[command]["description"] if "description" in self._commands[command] else "No description available."
-				lines = self.print( description, leftText=command, lpad=commandNameLength )
+	def addCommand( self, command ):
+	
+		if isinstance( command, Command ):
+			
+			if command.getName() in self._commands:
+				self.log( "Replacing existing command \"%s\"." % command.getName(), level=3 )
+			else:
+				self.log( "Loading command \"%s\"." % command.getName(), level=3 )
+			
+			self._commands[command.getName()] = command
+			
+			for alias in command.getAliases():
+				if alias not in self._commands:
+					self.log( "Adding alias \"%s\" for command \"%s\"." % ( alias, command.getName() ), level=3 )
+					self._commands[alias] = command.getName()
 					
-				# Look for command aliases
-				aliases = []
-				
-				for alias in self._commands:
-					if "alias" in self._commands[alias] and self._commands[alias]["alias"] == command:
-						aliases.append( alias )
-				
-				# Print aliases' list if any
-				if len(aliases):
-					aliasTitle = "%sAliases: " % "".ljust( commandNameLength )
-					lines += self.print( ", ".join( aliases ), leftText=aliasTitle, lpad=len( aliasTitle ) )
-				
-				# If the command's information is larger than 1 line, empty line is added
-				if lines > 1:
-					print( "" )
-				
+				else:
+					self.log( "Ignoring alias \"%s\" because a command exists with this name." % alias, level=3 )
+			
+		else:
+			self.error( "Can not load command because it is not a \"shell.command.Command\" instance." )
+			
 				
 	def run( self, args=[] ):
 		self._running = True
@@ -345,24 +329,23 @@ class Shell():
 					continue
 			
 				if args[0] in self._commands:
-					command = args[0]
+					commandName = args[0]
 					
-					if "alias" in self._commands[command]:
-						if self._commands[command]["alias"] in self._commands:
-							command = self._commands[command]["alias"]
-						else:
-							self.error( "Referenced command \"%s\" not found for alias \"%s\"." % (command, self._commands[command]["alias"]) )
-							command = None
-						
-					if "function" not in self._commands[command] or not callable( self._commands[command]["function"] ):
-						self.error( "Command \"%s\" is not executable." % command )
-						command = None
+					# To avoid cyclic-dependencies
+					testedNames = []
+					
+					while isinstance( self._commands[commandName], str ) and commandName not in testedNames:
+						testedNames.append( commandName )
+						commandName = self._commands[commandName]
+					
+					if isinstance( self._commands[commandName], Command ):
+						command = self._commands[commandName]
 					
 				if command != None:
-					self._commands[command]["function"]( args )
+					command.run( self, args )
 				else:
 					self.error( "Unknown command %s." % args[0] )
-					
+			
 			except KeyboardInterrupt:
 				print()
 				self.log( "Interrupted by user.", level=0 )
