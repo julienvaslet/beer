@@ -331,7 +331,7 @@ class Shell():
 				if args[0] in self._commands:
 					commandName = args[0]
 					
-					# To avoid cyclic-dependencies
+					# Avoid cyclic-dependencies
 					testedNames = []
 					
 					while isinstance( self._commands[commandName], str ) and commandName not in testedNames:

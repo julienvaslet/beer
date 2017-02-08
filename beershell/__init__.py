@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-__all__ = [ "shell", "command" ]
+__all__ = [ "beershell" ]
 __version__ = "0.1.0"
