@@ -3,12 +3,12 @@
 
 from util import *
 from units import *
-from shell import Shell
+from shell import *
 
 if __name__ == "__main__":
 	# Banner and summary
 	banner()
-	shell = Shell( "beer" )
+	shell = shell.Shell( "beer" )
 	
 	shell.print( " " )
 	shell.log( "Recipes: %d" % 0 )

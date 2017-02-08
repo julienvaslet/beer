@@ -274,7 +274,6 @@ class Shell():
 			
 			lastLineIndex = lineIndex
 			lastLength = len(line)
-				
 		
 		os.write( sys.stdout.fileno(), b"\n" )
 		return line
