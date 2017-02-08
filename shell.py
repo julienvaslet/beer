@@ -237,6 +237,15 @@ class Shell():
 					
 				else:
 					shouldBeep = True
+					
+			# Delete
+			elif key == "\x1b[3~":
+				if len(line) > 0 and lineIndex < len(line):
+					line = line[:lineIndex] + line[lineIndex + 1:]
+					rewriteLine = True
+					
+				else:
+					shouldBeep = True
 				
 			# Printable character
 			elif len(key) == 1 and ord(key) >= 32:
@@ -248,20 +257,15 @@ class Shell():
 		
 			# Print the line to the console
 			if rewriteLine:
-				for i in range( 0, lastLineIndex ):
-					os.write( sys.stdout.fileno(), b"\b" )
-					
-				os.write( sys.stdout.fileno(), line.encode() )
+				output = ("\b" * lastLineIndex) + line
 				
 				if lastLength > len(line):
-					for i in range( 0,lastLength - len(line) ):
-						os.write( sys.stdout.fileno(), b" " )
-						
-					for i in range( 0,lastLength - len(line) ):
-						os.write( sys.stdout.fileno(), b"\b" )
-				
-				for i in range( 0, len(line) - lineIndex ):
-					os.write( sys.stdout.fileno(), b"\b" )
+					output += " " * (lastLength - len(line))
+					output += "\b" * (lastLength - len(line))
+					
+				output += "\b" * (len(line) - lineIndex)
+					
+				os.write( sys.stdout.fileno(), output.encode() )
 			
 			# Emits console beep
 			elif shouldBeep:
