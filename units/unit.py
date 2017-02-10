@@ -2,5 +2,10 @@
 
 class Unit():
 
-	def __init__( self ):
-		print( "init" )
+	units = {}
+
+	def __init__( self, value, unit=None ):
+		if unit != None and unit in self.multiples:
+			value *= self.multiples[unit]
+			
+		self._value = value
