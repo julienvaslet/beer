@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-__all__ = [ "unit", "weight", "volume" ]
+__all__ = [ "unit", "weight", "volume", "temperature" ]
 
 from .unit import *
 from .weight import *
 from .volume import *
+from .temperature import *
 
 def _autoload_units( cls ):
 	for unitClass in cls.__subclasses__():
