@@ -386,6 +386,8 @@ class Shell():
 	
 	
 	def execute( self, args=[] ):
+		
+		command = None
 	
 		if args[0] in self._commands:
 			commandName = args[0]
@@ -415,8 +417,6 @@ class Shell():
 			while self._running:
 				try:
 					commandline = self.input( "%s > " % self._title )
-					command = None
-			
 					args = self.parseLine( commandline )
 
 					if len( args ) == 0:
