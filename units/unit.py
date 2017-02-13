@@ -28,6 +28,24 @@ class Unit():
 				v = None
 			
 		return v
+	
+	
+	def getConversionUnits( self ):
+		units = []
+		
+		for multiple in self.multiples:
+			units.append( multiple )
+			
+		for conversionUnit in self.conversions:
+			if conversionUnit in Unit.units:
+				for multiple in Unit.units[conversionUnit].multiples:
+					units.append( multiple )
+		
+		return units
+	
+		
+	def getBestUnit( self ):
+		return self.unit
 		
 		
 	def toString( self, unit=None ):
@@ -36,7 +54,6 @@ class Unit():
 		if unit != None:
 			if unit in self.multiples:
 				v /= self.multiples[unit]
-				
 				
 			else:
 				unitFound = False
@@ -49,7 +66,7 @@ class Unit():
 						
 					else:
 						if conversionUnit in self.units and unit in self.units[conversionUnit].multiples:
-							transitionUnit = self.units[conversionUnit]( v / self.conversions[conversionUnit], unit=conversionUnit )
+							transitionUnit = Unit.units[conversionUnit]( v / self.conversions[conversionUnit], unit=conversionUnit )
 							v = transitionUnit.getValue( unit=unit )
 							unitFound = True
 							break
@@ -59,26 +76,42 @@ class Unit():
 					unit = self.unit
 
 		else:
-			# TODO: find the "best" multiple to print the value
-			v = v
-			unit = self.unit
+			unit = self.getBestUnit()
+			v /= self.multiples[unit]
 
 		# TODO: Print without useless decimals
-		return "%0.3f %s" % ( round( v, 3 ), unit)
+		return "%0.3f %s" % ( round( v, 3 ), unit )
 
+
+	def __repr__( self ):
+		return self.toString()
+		
+	
+	def __str__( self ):
+		return self.toString()
+		
 
 	@classmethod
 	def parse( cls, text ):
-		unit = None
 		
+		elements = None
 		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)\s*([a-zA-Z°]+(?:/[a-zA-Z°]+)?)\s*$", text )
 		
 		if match:
 			sign = -1.0 if match.group( 1 ) == "-" else 1.0
-			value = sign * float( match.group( 2 ).replace( ",", "." ) )
-			unitName = match.group( 3 )
-			
-			if unitName in Unit.units:
-				unit = Unit.units[unitName]( value, unitName )
+			elements = ( sign * float( match.group( 2 ).replace( ",", "." ) ), match.group( 3 ) )
+		
+		return elements
+		
+
+	@classmethod
+	def create( cls, text ):
+		unit = None
+		
+		elements = cls.parse( text )
+		
+		if elements != None:
+			if elements[1] in Unit.units:
+				unit = Unit.units[elements[1]]( elements[0], elements[1] )
 		
 		return unit

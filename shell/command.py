@@ -50,7 +50,7 @@ class HelpCommand(Command):
 	
 	def run( self, shell, args ):
 	
-		shell.print( "List of the available commands:\n" )
+		shell.print( "List of available commands:\n", lpad=1 )
 		
 		commandNameLength = 0
 		
@@ -58,14 +58,14 @@ class HelpCommand(Command):
 			if commandNameLength < len(command):
 				commandNameLength = len(command)
 	
-		commandNameLength += 4
+		commandNameLength += 5
 		
 		for commandName in shell._commands:
 			command = shell._commands[commandName]
 			
 			if isinstance( command, Command ):
 				description = command.getDescription()
-				lines = shell.print( description, leftText=commandName, lpad=commandNameLength )
+				lines = shell.print( description, leftText=" %s" % commandName, lpad=commandNameLength )
 			
 				# Print aliases' list if any
 				if len(command.getAliases()):
