@@ -28,6 +28,10 @@ class Command():
 		
 	def run( self, shell, args ):
 		raise NotImplementedError()
+		
+	
+	def autocomplete( self, shell, args ):
+		return []
 
 
 class ExitCommand(Command):

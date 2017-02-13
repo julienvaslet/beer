@@ -73,3 +73,43 @@ class ConvertCommand(command.Command):
 			return 2
 		
 		return 0
+		
+		
+	def autocomplete( self, shell, args ):
+	
+		choices = []
+	
+		if len(args) > 1:
+			args.pop( 0 )
+		
+			sValue = args[0]
+			args.pop( 0 )
+			elements = unit.Unit.parse( sValue )
+		
+			# Unit may be the next argument
+			if elements == None and len(args) > 0:
+				sValue += args[0]
+				args.pop( 0 )
+
+				elements = unit.Unit.parse( sValue )
+		
+			# If the value could be parsed as an handled unit
+			if elements != None:
+				value = unit.Unit.create( sValue )
+				
+				if len(args) == 1 and len(args[0]) == 0:
+					choices.append( "in" )
+					
+				elif len(args) > 1:
+					if args[0] == "in":
+						args.pop( 0 )
+						
+						if len(args) == 1:
+							toUnit = args[0]
+							
+							for conversionUnit in value.getConversionUnits():
+								if conversionUnit[:len(toUnit)] == toUnit:
+									choices.append( conversionUnit )
+		
+		return choices
+	

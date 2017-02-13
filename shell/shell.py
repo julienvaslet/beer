@@ -129,22 +129,31 @@ class Shell():
 	def autocomplete( self, line ):
 		choices = []
 		
-		args = self.parseLine( line )
+		args = self.parseLine( line, keepTrailingSpace=True )
 		
 		if len(args) == 1:
 			for commandName in self._commands:
 				if commandName[:len(args[0])] == args[0]:
 					choices.append( commandName )
+					
+		elif len(args) > 1:
+			if args[0] in self._commands:
+				choices = self._commands[args[0]].autocomplete( self, args )
 		
 		return choices
 		
 		
-	def parseLine( self, line ):
-	
-		separatorPattern = re.compile( "\s+" )
-		# TODO: Parse "" literals as one argument
-		# TODO: add empty trailing argument if last character is space, (autocompletion need)
-		args = list( filter( len, separatorPattern.split( line.strip() ) ) )
+	def parseLine( self, line, keepTrailingSpace=False ):
+
+		args = []
+		matches = re.findall( r'"([^"]*)"|([^\s]+)', line )
+		
+		for match in matches:
+			args.append( match[0] if len( match[0] ) else match[1] )
+		
+		if keepTrailingSpace:
+			if re.search( r"[^\s]+\s+$", line ) and keepTrailingSpace:
+				args.append( "" )
 		
 		return args
 
@@ -218,8 +227,8 @@ class Shell():
 				
 				if len(choices) > 0:
 					if len(choices) == 1:
-						args = self.parseLine( line )
-						args[len(args) - 1] = choices[0]
+						args = self.parseLine( line, keepTrailingSpace=True )
+						args[len(args) - 1] = choices[0] + " "
 						
 						line = " ".join( args )
 						lineIndex = len(line)
