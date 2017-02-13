@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-__all__ = [ "unit", "weight" ]
+__all__ = [ "unit", "weight", "volume" ]
 
 from .unit import *
 from .weight import *
+from .volume import *
 
 def _autoload_units( cls ):
 	for unitClass in cls.__subclasses__():
