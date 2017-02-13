@@ -65,6 +65,7 @@ escapeSequences = [
 	b"\x1b[6;",
 	b"\x1b[6;3",	# Alt+Page-Down
 	b"\x1bO",		# F2, F3, F4
+	b"\xc2",		# Unicode
 	b"\xc3"			# Unicode
 ]
 
@@ -201,8 +202,8 @@ class Shell():
 			rawkey = self.getch()
 			
 			try:
-				key = rawkey.decode( "utf-8" )
 				#print( rawkey )
+				key = rawkey.decode( "utf-8" )
 				
 			except UnicodeDecodeError:
 				continue
