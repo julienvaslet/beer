@@ -1,1 +1,14 @@
+ 
+╻ ╻   ┏┓ ┏━╸┏━╸┏━┓   ╻
+╺╋╸   ┣┻┓┣╸ ┣╸ ┣┳┛   ╹
+╹ ╹   ┗━┛┗━╸┗━╸╹┗╸   ╹
+╺━━━━━━━━━━━━━━━━━━━━╸
+
 Beer is a command-line tool that assists brewers in recipe creation.
+
+
+Current features:
+
+   - Units conversions with the `convert` command.
+
+
