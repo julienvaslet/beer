@@ -2,25 +2,27 @@
 
 from .unit import *
 
-# QUESTION? Make a single Weight global class?
+class Weight(Unit):
 
-class Kilogram(Unit):
+	units = {}
+	
 
-	unit = "kg"
-	multiples = { "g": 0.001, "mg": 0.000001 }
-	conversions = {}
+class Gram(Weight):
 
-	def __init__( self, value, unit=None ):
-		Unit.__init__( self, value, unit=unit )
-		
-		print( self._value )
-		
-		
-class Ton(Unit):
-
-	unit = "t"
-	multiples = {}
-	conversions = {}
+	unit = "g"
+	multiples = { "kg": 1000, "g": 1, "mg": 0.001 }
+	conversions = { "lb": 453.59237 }
 
 	def __init__( self, value, unit=None ):
 		Unit.__init__( self, value, unit=unit )
+
+
+class Pound(Weight):
+
+	unit = "lb"
+	multiples = { "lb": 1, "oz": 0.0625 }
+	conversions = { "g": 0.002204623 }
+
+	def __init__( self, value, unit=None ):
+		Unit.__init__( self, value, unit=unit )
+
