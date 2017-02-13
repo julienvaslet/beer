@@ -18,11 +18,13 @@ class BeerShell(shell.Shell):
 	
 	
 	def run( self, args=[] ):
-		self.banner()
-		self.print( " " )
-		self.log( "Recipes: %d" % 0 )
-		self.log( "Malts: %d" % 0 )
-		self.log( "Hops: %d" % 0 )
-		self.print( " " )
+	
+		if len( args ) == 0:
+			self.banner()
+			self.print( " " )
+			self.log( "Recipes: %d" % 0 )
+			self.log( "Malts: %d" % 0 )
+			self.log( "Hops: %d" % 0 )
+			self.print( " " )
 	
 		shell.Shell.run( self, args )

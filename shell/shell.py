@@ -383,41 +383,53 @@ class Shell():
 			
 		else:
 			self.error( "Can not load command because it is not a \"shell.command.Command\" instance." )
-			
+	
+	
+	def execute( self, args=[] ):
+	
+		if args[0] in self._commands:
+			commandName = args[0]
+		
+			# Avoid cyclic-dependencies
+			testedNames = []
+		
+			while isinstance( self._commands[commandName], str ) and commandName not in testedNames:
+				testedNames.append( commandName )
+				commandName = self._commands[commandName]
+		
+			if isinstance( self._commands[commandName], Command ):
+				command = self._commands[commandName]
+		
+		if command != None:
+			command.run( self, args )
+		else:
+			self.error( "Unknown command %s." % args[0] )
+	
 				
 	def run( self, args=[] ):
-		self._running = True
+	
+		# Shell mode
+		if len(args) == 0:
+			self._running = True
 		
-		while self._running:
-			try:
-				commandline = self.input( "%s > " % self._title )
-				command = None
+			while self._running:
+				try:
+					commandline = self.input( "%s > " % self._title )
+					command = None
 			
-				args = self.parseLine( commandline )
+					args = self.parseLine( commandline )
 
-				if len( args ) == 0:
-					continue
+					if len( args ) == 0:
+						continue
 			
-				if args[0] in self._commands:
-					commandName = args[0]
-					
-					# Avoid cyclic-dependencies
-					testedNames = []
-					
-					while isinstance( self._commands[commandName], str ) and commandName not in testedNames:
-						testedNames.append( commandName )
-						commandName = self._commands[commandName]
-					
-					if isinstance( self._commands[commandName], Command ):
-						command = self._commands[commandName]
-					
-				if command != None:
-					command.run( self, args )
-				else:
-					self.error( "Unknown command %s." % args[0] )
+					self.execute( args )
 			
-			except KeyboardInterrupt:
-				print()
-				self.log( "Interrupted by user.", level=0 )
-				self.exit()
+				except KeyboardInterrupt:
+					print()
+					self.log( "Interrupted by user.", level=0 )
+					self.exit()
+		
+		# Single command execution		
+		else:
+			self.execute( args )
 	
