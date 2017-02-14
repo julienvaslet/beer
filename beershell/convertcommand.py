@@ -97,7 +97,7 @@ class ConvertCommand(command.Command):
 			if elements != None:
 				value = unit.Unit.create( sValue )
 				
-				if len(args) == 1 and len(args[0]) == 0:
+				if len(args) == 1 and args[0] == "in"[:len(args[0])]:
 					choices.append( "in" )
 					
 				elif len(args) > 1:
@@ -108,7 +108,7 @@ class ConvertCommand(command.Command):
 							toUnit = args[0]
 							
 							for conversionUnit in value.getConversionUnits():
-								if conversionUnit[:len(toUnit)] == toUnit:
+								if conversionUnit[:len(toUnit)].lower() == toUnit.lower():
 									choices.append( conversionUnit )
 		
 		return choices

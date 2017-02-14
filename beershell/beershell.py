@@ -25,6 +25,9 @@ class BeerShell(shell.Shell):
 			self.log( "Recipes: %d" % 0 )
 			self.log( "Malts: %d" % 0 )
 			self.log( "Hops: %d" % 0 )
+			
+			#self.log( "Planned: %d" % 0 )
+			#self.log( "In fermentation: %d" % 0 )
 			self.print( " " )
 	
 		shell.Shell.run( self, args )
