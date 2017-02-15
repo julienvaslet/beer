@@ -8,67 +8,6 @@ import termios
 
 from .command import *
 
-escapeSequences = [
-	b"\x1b",
-	b"\x1b[",
-	b"\x1b[1",		# Home, End
-	b"\x1b[1;",
-	b"\x1b[1;2",	# Ctrl+[Up,Down]
-	b"\x1b[1;3",	# Alt+[Up,Down,Left,Right]
-	b"\x1b[1;4",	# Maj+Alt+[F2,F3,F4]
-	b"\x1b[1;5",	# Ctrl+[Left,Right]
-	b"\x1b[1;6",	# Ctrl+Maj+[Left,Right]
-	b"\x1b[15",		# F5
-	b"\x1b[15;",
-	b"\x1b[15;2",	# Maj+F5
-	b"\x1b[15;4",	# Alt+Maj+F5
-	b"\x1b[15;5",	# Ctrl+F5
-	b"\x1b[17",		# F6
-	b"\x1b[17;",
-	b"\x1b[17;2",	# Maj+F6
-	b"\x1b[17;5",	# Ctrl+F6
-	b"\x1b[18",		# F7
-	b"\x1b[18;",
-	b"\x1b[18;2",	# Maj+F7
-	b"\x1b[18;4",	# Alt+Maj+F7
-	b"\x1b[18;5",	# Ctrl+F7
-	b"\x1b[19",		# F8
-	b"\x1b[19;",
-	b"\x1b[19;2",	# Maj+F8
-	b"\x1b[19;4",	# Alt+Maj+F8
-	b"\x1b[19;5",	# Ctrl+F8
-	b"\x1b[2",		# Insert
-	b"\x1b[2;",
-	b"\x1b[2;3",	# Maj+Insert
-	b"\x1b[2;6",	# Ctrl+Maj+Insert
-	b"\x1b[20",		# F9
-	b"\x1b[20;",
-	b"\x1b[20;2",	# Maj+F9
-	b"\x1b[20;4",	# Alt+Maj+F9
-	b"\x1b[20;5",	# Ctrl+F9
-	b"\x1b[24",		# F12
-	b"\x1b[24;",
-	b"\x1b[24;2",	# Maj+F12
-	b"\x1b[24;4",	# Alt+Maj+F12
-	b"\x1b[24;5",	# Ctrl+F12
-	b"\x1b[3",		# Delete
-	b"\x1b[3;",
-	b"\x1b[3;2",	# Maj+Delete
-	b"\x1b[3;3",	# Alt+Delete
-	b"\x1b[3;4",	# Alt+Maj+Delete
-	b"\x1b[3;5",	# Ctrl+Delete
-	b"\x1b[3;6",	# Ctrl+Maj+Delete
-	b"\x1b[5",		# Page-Up
-	b"\x1b[5;",
-	b"\x1b[5;3",	# Alt+Page-Up
-	b"\x1b[6",		# Page-Down
-	b"\x1b[6;",
-	b"\x1b[6;3",	# Alt+Page-Down
-	b"\x1bO",		# F2, F3, F4
-	b"\xc2",		# Unicode
-	b"\xc3"			# Unicode
-]
-
 wordSeparators = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
 
 class Shell():
@@ -160,6 +99,8 @@ class Shell():
 		newSettings[6][termios.VTIME] = 0
 
 		termios.tcsetattr( fd, termios.TCSANOW, newSettings )
+		
+		escapeRegex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
 
 		try:
 			complete = False
@@ -167,7 +108,7 @@ class Shell():
 			while not complete:
 				sequence += os.read( fd, 1 )
 			
-				if sequence not in escapeSequences:
+				if not escapeRegex.match( sequence ):
 					complete = True
 
 		finally:
