@@ -72,8 +72,25 @@ escapeSequences = [
 wordSeparators = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
 
 class Shell():
+	"""Represents an interactive command interpreter.
+	
+	Verbosities are:
+		- 0: quiet
+		- 1: normal
+		- 2: user debug
+		- 3: shell debug
+	
+	Attributes:
+		- (str) _title: Title of shell prompts.
+		- (int) _width: Width of the shell (default: 80).
+		- (bool) _running: Status of the shell session.
+		- (int) _verbosity: Level of verbosity (default: 1).
+		- (dict) _commands: Dictionary of registered commands.
+	"""
 
 	def __init__( self, title="" ):
+		"""Initialize a new shell."""
+		
 		self._title = title
 		self._width = 80
 		self._running = False
@@ -85,6 +102,16 @@ class Shell():
 		
 		
 	def error( self, message, code=0 ):
+		"""Prints an error message to the standard error output.
+		
+		Prints an error message to the standard error output. If an error code
+		greater than 0 is passed, it is prefixed to the message.
+		
+		Parameters:
+			- (str) message: The error message to print.
+			- (int) code: The error code associated to the message (default: 0)
+		"""
+		
 		if code > 0:
 			message = "Error %d: %s" % ( code, message )
 			
@@ -92,15 +119,37 @@ class Shell():
 		
 		
 	def log( self, message, level=1 ):
+		"""Prints an informative message to the shell output.
+		
+		Prints an informative message to the shell output. If the level is
+		lower than the shell verbosity, the message is ignored.
+		
+		Parameters:
+			- (str) message: The message to print.
+			- (int) level: The level of verbosity of the message (default: 1).
+		"""
+		
 		if level <= self._verbosity:
 			self.print( message, leftText="[*]", lpad=4 )
 			
 			
-	def exit( self, args=[] ):
+	def exit( self ):
+		"""Ends the shell session."""
+		
 		self._running = False
 	
 	
 	def getch( self ):
+		"""Reads a character from user standard input.
+		
+		Reads a character or a sequence from the user standard input without
+		printing it. Sequences are read to correctly get HOME, END, TAB, etc.
+		keys and unicode characters.
+		
+		Returns:
+			- bytes -- the raw bytes sequence read.
+		"""
+		
 		sequence = b""
 
 		fd = sys.stdin.fileno()
@@ -128,6 +177,15 @@ class Shell():
 		
 		
 	def autocomplete( self, line ):
+		"""Gets the autocompletion choices according to the current command line.
+		
+		Parameters:
+			- (str) line: The current command line.
+		
+		Returns:
+			- list -- the current available choices.
+		"""
+		
 		choices = []
 		
 		args = self.parseLine( line, keepTrailingSpace=True )
@@ -145,6 +203,19 @@ class Shell():
 		
 		
 	def parseLine( self, line, keepTrailingSpace=False ):
+		"""Parses the specified command line into an arguments array.
+		
+		Parses the specified command line into an arguments array. If the
+		keepTrailingSpace boolean is set and the command line ends with spaces,
+		an empty string is added to the arguments list.
+		
+		Parameters:
+			- (str) line: The command line.
+			- (bool) keepTrailingSpace: Keep trailing spaces (default: False).
+		
+		Returns:
+			- list -- the arguments.
+		"""
 
 		args = []
 		matches = re.findall( r'"([^"]*)"|([^\s]+)', line )
@@ -160,6 +231,17 @@ class Shell():
 
 
 	def input( self, prompt="" ):
+		"""Reads a command line from the user input.
+		
+		Reads a command line from the user input. Arrow keys, Home, End and Tab
+		keys are intercepted to provide input navigation and autocompletion.
+		
+		Parameters:
+			- (str) prompt: The prompt message.
+			
+		Returns:
+			- str -- the read command line.
+		"""
 		
 		line = ""
 		lineIndex = 0
@@ -349,6 +431,21 @@ class Shell():
 		
 		
 	def print( self, message, end="\n", leftText="", lpad=0 ):
+		"""Prints a message to the shell output.
+		
+		Prints a message to the shell output. This message could be left-padded
+		in order to indent it and a message can be added into the left-padding.
+		
+		Parameters:
+			- (str) message: The message to print.
+			- (str) end: The end of message separator (default "\n").
+			- (str) leftText: The text printed in the left padding (default: "").
+			- (int) lpad: The left padding width (default: 0).
+		
+		Returns:
+			- int -- the number of lines printed.
+		"""
+		
 		lineLength = self._width - lpad
 		linesPrinted = 0
 		i = 0
@@ -364,6 +461,11 @@ class Shell():
 		
 	
 	def addCommand( self, command ):
+		"""Adds a command to the shell.
+		
+		Parameters:
+			- (shell.command.Command) command: The command to add.
+		"""
 	
 		if isinstance( command, Command ):
 			
@@ -387,6 +489,11 @@ class Shell():
 	
 	
 	def execute( self, args=[] ):
+		"""Executes a parsed command line.
+		
+		Parameters:
+			- (list) args: The parsed command line.
+		"""
 		
 		command = None
 	
@@ -410,6 +517,11 @@ class Shell():
 	
 				
 	def run( self, args=[] ):
+		"""Launches the shell session.
+		
+		Parameters:
+			- (list) args: Arguments passed to the shell.
+		"""
 	
 		# Shell mode
 		if len(args) == 0:
