@@ -3,6 +3,7 @@
 from .unit import *
 
 class Temperature(Unit):
+	"""Temperature unit class container."""
 
 	units = {}
 	

@@ -3,6 +3,7 @@
 from .unit import *
 
 class Volume(Unit):
+	"""Volume unit class container."""
 
 	units = {}
 	

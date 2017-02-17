@@ -6,7 +6,9 @@ from .weight import *
 from .volume import *
 from .temperature import *
 
-def _autoload_units( cls ):
+def _load_units( cls ):
+	"""Recursively loads all subclasses of Unit into *.units class variables."""
+	
 	for unitClass in cls.__subclasses__():
 		_autoload_units( unitClass )
 		
@@ -22,5 +24,5 @@ def _autoload_units( cls ):
 			cls.units = { **cls.units, **unitClass.units }
 
 
-# Recursively autoload all units
-_autoload_units( Unit )
+# Recursively load all units
+_load_units( Unit )

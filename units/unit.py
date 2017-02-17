@@ -3,10 +3,26 @@
 import re
 
 class Unit():
+	"""Represents an abstract unit.
+	
+	Represents an abstract unit ; each unit is a subclass of this class.
+	
+	Class variables:
+		- (dict) units: (str => class) array of loaded units.
+		- (dict) multiples: (str => float) array of unit multiples.
+		- (dict) conversions: (str => lambda) array of unit conversions.
+	
+	Attributes:
+		- (float) _value: The value.
+		- (str) _unit: The unit of the value.
+		
+	"""
 
 	units = {}
 
 	def __init__( self, value, unit=None ):
+		"""Initialize an unit."""
+		
 		if unit != None and unit in self.multiples:
 			value *= self.multiples[unit]
 		
@@ -15,6 +31,21 @@ class Unit():
 		
 	
 	def getValue( self, unit=None ):
+		"""Returns the value, in the specified unit or the default one.
+		
+		Returns the value, in the specified unit. If no unit is specified the
+		default one is used. If the asked conversion is unavailable, None is
+		returned.
+		
+		Parameters:
+			- (str) unit: The unit in which to convert the value (default: None).
+			
+		Return value:
+			- (float) -- the converted value.
+			
+			If the asked conversion is unavailable, None is returned.
+		"""
+		
 		v = self._value
 		
 		if unit != None:
@@ -44,6 +75,12 @@ class Unit():
 	
 	
 	def getConversionUnits( self ):
+		"""Returns the available units for conversion.
+		
+		Return value:
+			- list -- the available units for conversion.
+		"""
+	
 		units = []
 		
 		for multiple in self.multiples:
@@ -58,10 +95,25 @@ class Unit():
 	
 		
 	def getBestUnit( self ):
+		"""Returns the proper unit to print the value.
+		
+		Return value:
+			- str -- the proper unit for the value.
+		"""
+		
 		return self.unit
 		
 		
 	def toString( self, unit=None ):
+		"""Returns the unit, converted, in string format post-fixed by the unit.
+		
+		Parameters:
+			- (str) unit: The unit in which to convert the value (default: None).
+		
+		Return value:
+			- str -- the unit converted, in string format.
+		"""
+		
 		v = self._value
 		
 		if unit != None:
@@ -89,6 +141,12 @@ class Unit():
 
 	@classmethod
 	def parse( cls, text ):
+		"""Parses a string representation of a unit into a tuple (float, str).
+		
+		Return value:
+			- float -- the number part of the string.
+			- str -- the unit part of the string.
+		"""
 		
 		elements = None
 		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)\s*([a-zA-Z°]+(?:/[a-zA-Z°]+)?)\s*$", text )
@@ -102,6 +160,15 @@ class Unit():
 
 	@classmethod
 	def create( cls, text ):
+		"""Creates an Unit from a string representation.
+		
+		Creates an Unit from a string representation. The unit subclass is used
+		for the creation from `Unit.units` dict.
+		
+		Return value:
+			- Unit -- the parsed unit.
+		"""
+	
 		unit = None
 		
 		elements = cls.parse( text )
@@ -111,3 +178,4 @@ class Unit():
 				unit = Unit.units[elements[1]]( elements[0], elements[1] )
 		
 		return unit
+

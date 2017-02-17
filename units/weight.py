@@ -3,6 +3,7 @@
 from .unit import *
 
 class Weight(Unit):
+	"""Weight unit class container."""
 
 	units = {}
 	
