@@ -2,6 +2,7 @@
 __all__ = [ "unit", "weight", "volume", "temperature" ]
 
 from .unit import *
+from .time import *
 from .color import *
 from .weight import *
 from .volume import *
