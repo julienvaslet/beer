@@ -277,6 +277,7 @@ class Shell():
 								output += "\n"
 								
 							output += choice.ljust( maxChoiceLength )
+							choiceLineLength += maxChoiceLength
 							
 						output += "\n"
 						

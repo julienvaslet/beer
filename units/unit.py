@@ -171,7 +171,7 @@ class Unit():
 	def formatValue( cls, value ):
 		"""Convert a float to a standardized string."""
 	
-		return re.sub( r"\.0+$", "", "%0.3f" % round( value, 3 ) )
+		return re.sub( r"\.?0+$", "", "%0.3f" % round( value, 3 ) )
 		
 
 	@classmethod
