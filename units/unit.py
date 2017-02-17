@@ -103,32 +103,41 @@ class Unit():
 		
 		return self.unit
 		
-		
-	def toString( self, unit=None ):
+	
+	#TODO: add decompisition 1 h 32 mn 5 s
+	def toString( self, unit=None, decompose=False ):
 		"""Returns the unit, converted, in string format post-fixed by the unit.
 		
 		Parameters:
 			- (str) unit: The unit in which to convert the value (default: None).
+			- (bool) decompose: The output is decomposed in unit's multiples.
 		
 		Return value:
 			- str -- the unit converted, in string format.
 		"""
 		
-		v = self._value
+		value = self._value
 		
 		if unit != None:
-			v = self.getValue( unit=unit )
+			value = self.getValue( unit=unit )
 			
-			if v == None:
-				v = self._value
+			if value == None:
+				value = self._value
 				unit = self.unit
 		
-		else:
+		elif not decompose:
 			unit = self.getBestUnit()
-			v /= self.multiples[unit]
-
-		# TODO: Print without useless decimals
-		return "%0.3f %s" % ( round( v, 3 ), unit )
+			value /= self.multiples[unit]
+			
+		if True: #not decompose:
+			return "%s %s" % ( Unit.formatValue( value ), unit )
+			
+		else:
+			sValue = ""
+			
+			
+			
+			return sValue
 
 
 	def __repr__( self ):
@@ -157,6 +166,13 @@ class Unit():
 		
 		return elements
 		
+	
+	@classmethod
+	def formatValue( cls, value ):
+		"""Convert a float to a standardized string."""
+	
+		return re.sub( r"\.0+$", "", "%0.3f" % round( value, 3 ) )
+		
 
 	@classmethod
 	def create( cls, text ):
@@ -178,4 +194,15 @@ class Unit():
 				unit = Unit.units[elements[1]]( elements[0], elements[1] )
 		
 		return unit
+		
+		
+	@classmethod
+	def getAllUnits( cls ):
+		"""Returns the list of all loaded units.
+		
+		Return value:
+			- list -- the list of all units.
+		"""
+		
+		return Unit.units.keys()
 
