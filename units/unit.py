@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from collections import OrderedDict
 
 class Unit():
 	"""Represents an abstract unit.
@@ -104,7 +105,6 @@ class Unit():
 		return self.unit
 		
 	
-	#TODO: add decompisition 1 h 32 mn 5 s
 	def toString( self, unit=None, decompose=False ):
 		"""Returns the unit, converted, in string format post-fixed by the unit.
 		
@@ -128,16 +128,48 @@ class Unit():
 		elif not decompose:
 			unit = self.getBestUnit()
 			value /= self.multiples[unit]
+		
+		else:
+			unit = self._unit
 			
-		if True: #not decompose:
+		if not decompose:
 			return "%s %s" % ( Unit.formatValue( value ), unit )
 			
 		else:
-			sValue = ""
+			values = []
+			lastUnit = ""
 			
+			multiples = OrderedDict( sorted( Unit.units[unit].multiples.items(), key=lambda k: k[1], reverse=True ) )
 			
+			# Get the value in the smallest unit
+			for multiple in multiples:
+				lastUnit = multiple
 			
-			return sValue
+			value = self.getValue( unit=lastUnit )
+			
+			# Update multiples factors
+			for multiple in multiples:
+				if multiple != lastUnit:
+					multiples[multiple] /= multiples[lastUnit]
+					
+			multiples[lastUnit] = 1.0
+			
+			# Decompose value
+			for multiple in multiples:
+				multipleValue = 0
+				
+				while value >= multiples[multiple]:
+					multipleValue += 1
+					value -= multiples[multiple]
+				
+				if multipleValue > 0:
+					values.append( "%s %s" % ( Unit.formatValue( multipleValue ), multiple ) )
+			
+			if len(values) > 0:
+				return " ".join( values )
+				
+			else:
+				return "0 %s" % lastUnit
 
 
 	def __repr__( self ):

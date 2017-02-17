@@ -10,8 +10,8 @@ class Time(Unit):
 
 class Minute(Time):
 
-	unit = "mn"
-	multiples = { "h": 60, "mn": 1, "s": 1/60 }
+	unit = "s"
+	multiples = { "h": 3600, "mn": 60, "s": 1 }
 	conversions = {}
 
 	def __init__( self, value, unit=None ):
