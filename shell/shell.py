@@ -7,6 +7,7 @@ import tty
 import termios
 
 from .command import *
+from language import Language
 
 wordSeparators = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
 
@@ -29,11 +30,14 @@ class Shell():
 
 	def __init__( self, title="" ):
 		"""Initialize a new shell."""
+
+		# Load localized strings
+		Language.load( "shell.ini" )
 		
 		self._title = title
 		self._width = 80
 		self._running = False
-		self._verbosity = 1
+		self._verbosity = 3
 		self._commands = {}
 		
 		self.addCommand( ExitCommand() )
@@ -52,7 +56,7 @@ class Shell():
 		"""
 		
 		if code > 0:
-			message = "Error %d: %s" % ( code, message )
+			message = Language.get( Shell, "error_number" ) % ( code, message )
 			
 		print( "[!] %s" % message, file=sys.stderr )
 		
@@ -412,22 +416,22 @@ class Shell():
 		if isinstance( command, Command ):
 			
 			if command.getName() in self._commands:
-				self.log( "Replacing existing command \"%s\"." % command.getName(), level=3 )
+				self.log( Language.get( Shell, "replacing_command" ) % command.getName(), level=3 )
 			else:
-				self.log( "Loading command \"%s\"." % command.getName(), level=3 )
+				self.log( Language.get( Shell, "loading_command" ) % command.getName(), level=3 )
 			
 			self._commands[command.getName()] = command
 			
 			for alias in command.getAliases():
 				if alias not in self._commands:
-					self.log( "Adding alias \"%s\" for command \"%s\"." % ( alias, command.getName() ), level=3 )
+					self.log( Language.get( Shell, "adding_alias" ) % ( alias, command.getName() ), level=3 )
 					self._commands[alias] = command.getName()
 					
 				else:
-					self.log( "Ignoring alias \"%s\" because a command exists with this name." % alias, level=3 )
+					self.log( Language.get( Shell, "ignoring_alias" ) % alias, level=3 )
 			
 		else:
-			self.error( "Can not load command because it is not a \"shell.command.Command\" instance." )
+			self.error( Language.get( Shell, "command_not_loaded" ) )
 	
 	
 	def execute( self, args=[] ):
@@ -455,7 +459,7 @@ class Shell():
 		if command != None:
 			command.run( self, args )
 		else:
-			self.error( "Unknown command %s." % args[0] )
+			self.error( Language.get( Shell, "unknown_command" ) % args[0] )
 	
 				
 	def run( self, args=[] ):
@@ -481,7 +485,7 @@ class Shell():
 			
 				except KeyboardInterrupt:
 					print()
-					self.log( "Interrupted by user.", level=0 )
+					self.log( Language.get( Shell, "interrupt_by_user" ), level=0 )
 					self.exit()
 		
 		# Single command execution		

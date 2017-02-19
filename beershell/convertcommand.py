@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 from shell import *
 from units import *
+from language import Language
 
 import re
 
 class ConvertCommand(command.Command):
 
 	def __init__( self ):
-		command.Command.__init__( self, "convert", description="Converts units." )
-	
+		command.Command.__init__( self, "convert" )
+		
 	
 	def run( self, shell, args ):
 	
 		if len(args) < 2:
-			shell.print( "usage: %s <value> <unit> [[in] <unit>]" % args[0], lpad=1 )
-			shell.print( "Converts value between specified units.", lpad=1 )
+			shell.print( Language.get( ConvertCommand, "help_message" ) % args[0], lpad=1 )
 			return 1
 		
 		args.pop( 0 )
@@ -53,10 +53,10 @@ class ConvertCommand(command.Command):
 							shell.print( value.toString( unit=toUnit ) )
 							
 						else:
-							shell.error( "Conversion from \"%s\" to \"%s\" is not implemented." % (elements[1], toUnit) )
+							shell.error( Language.get( ConvertCommand, "conversion_not_implemented" ) % (elements[1], toUnit) )
 							return 3
 					else:
-						shell.error( "Unit \"%s\" is not handled." % toUnit )
+						shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % toUnit )
 						return 2
 				
 				elif not inKeyword:
@@ -64,14 +64,14 @@ class ConvertCommand(command.Command):
 						shell.print( value.toString( unit=toUnit ) )
 				
 				else:
-					shell.error( "The keyword \"in\" must be followed by an unit." )
+					shell.error( Language.get( ConvertCommand, "in_keyword_alone" ) )
 					return 1
 			
 			else:
-				shell.error( "Unit \"%s\" is not handled." % elements[1] )
+				shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % elements[1] )
 				return 2
 		else:
-			shell.error( "You have typed something that is not an unit." )
+			shell.error( Language.get( ConvertCommand, "it_is_not_an_unit" ) )
 			return 2
 		
 		return 0

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .shell import *
+from language import Language
 
 class Command():
 	"""Represents a shell command.
@@ -14,7 +15,7 @@ class Command():
 		- (str) _longDescription: The long description of the command.
 	"""
 
-	def __init__( self, name, description="" ):
+	def __init__( self, name ):
 		"""Initialize a command.
 		
 		Parameters:
@@ -24,8 +25,8 @@ class Command():
 		
 		self._name = name
 		self._aliases = []
-		self._description = description
-		self._longDescription = ""
+		self._description = Language.get( self.__class__, "description" )
+		self._longDescription = Language.get( self.__class__, "long_description" )
 
 
 	def	getName( self ):
@@ -78,7 +79,7 @@ class ExitCommand(Command):
 	"""Represents the `exit` command to ends the shell sessions."""
 
 	def __init__( self ):
-		Command.__init__( self, "exit", description="Exits the current shell." )
+		Command.__init__( self, "exit" )
 		self._aliases = [ "quit" ]
 	
 	
@@ -92,11 +93,11 @@ class HelpCommand(Command):
 	"""Represents the `help` command to show the shell available commands."""
 
 	def __init__( self ):
-		Command.__init__( self, "help", description="Show this help message." )
+		Command.__init__( self, "help" )
 	
 	def run( self, shell, args ):
 	
-		shell.print( "List of available commands:\n", lpad=1 )
+		shell.print( "%s\n" % Language.get( HelpCommand, "commands_list" ), lpad=1 )
 		
 		commandNameLength = 0
 		
@@ -115,7 +116,7 @@ class HelpCommand(Command):
 			
 				# Print aliases' list if any
 				if len(command.getAliases()):
-					aliasTitle = "%sAliases: " % "".ljust( commandNameLength )
+					aliasTitle = "%s%s " % ( "".ljust( commandNameLength ), Language.get( HelpCommand, "aliases" ) )
 					lines += shell.print( ", ".join( command.getAliases() ), leftText=aliasTitle, lpad=len( aliasTitle ) )
 		
 				# If the command's information is larger than 1 line, empty line is added

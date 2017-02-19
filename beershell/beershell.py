@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from shell import *
+from language import Language
 from . import convertcommand
 
 class BeerShell(shell.Shell):
 
 	def __init__( self ):
 		shell.Shell.__init__( self, title="beer" )
+		Language.load( "beershell.ini" )
 		self.addCommand( convertcommand.ConvertCommand() )
 	
 	def banner( self ):
