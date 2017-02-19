@@ -3,12 +3,16 @@
 from .unit import *
 
 class Time(Unit):
-	"""Time unit class container."""
+	"""Time unit class container.
+	
+	Times are:
+		- Second: s (h, mn)
+	"""
 
 	units = {}
 	
 
-class Minute(Time):
+class Second(Time):
 
 	unit = "s"
 	multiples = { "h": 3600, "mn": 60, "s": 1 }

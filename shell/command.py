@@ -6,7 +6,8 @@ class Command():
 	"""Represents a shell command.
 	
 	Commands must inherit this class and provide an implemention of the
-	run() method.
+	run() method. The description and long description should be defined
+	with the `Language` class and are autoloaded at command initialization.
 	
 	Attributes:
 		- (str) _name: The name of the command.
@@ -20,7 +21,6 @@ class Command():
 		
 		Parameters:
 			- (str) name: The name of the command.
-			- (str) description: The command's description (default: "").
 		"""
 		
 		self._name = name

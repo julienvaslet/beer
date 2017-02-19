@@ -3,7 +3,13 @@
 from .unit import *
 
 class Temperature(Unit):
-	"""Temperature unit class container."""
+	"""Temperature unit class container.
+	
+	Temperatures are:
+		- Celsius: °C
+		- Fahrenheit: °F
+		- Kelvin: K
+	"""
 
 	units = {}
 	

@@ -3,7 +3,12 @@
 from .unit import *
 
 class Volume(Unit):
-	"""Volume unit class container."""
+	"""Volume unit class container.
+	
+	Volumes are:
+		- Liter: L (hL, dL, cL, mL)
+		- Gallon: gal (qt, pint, cup, fl-oz)
+	"""
 
 	units = {}
 	

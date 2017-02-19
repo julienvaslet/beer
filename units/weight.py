@@ -3,7 +3,12 @@
 from .unit import *
 
 class Weight(Unit):
-	"""Weight unit class container."""
+	"""Weight unit class container.
+	
+	Weights are:
+		- Gram: g (kg, mg)
+		- Pound: lb (oz)
+	"""
 
 	units = {}
 	
