@@ -37,7 +37,7 @@ class Shell():
 		self._title = title
 		self._width = 80
 		self._running = False
-		self._verbosity = 3
+		self._verbosity = 1
 		self._commands = {}
 		
 		self.addCommand( ExitCommand() )
@@ -394,14 +394,15 @@ class Shell():
 		
 		lineLength = self._width - lpad
 		linesPrinted = 0
-		i = 0
 		
-		while i < len( message ):
-			pad = leftText if i == 0 else ""
-			line = message[i:i+lineLength]
-			i += lineLength
-			print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
-			linesPrinted += 1
+		for msg in re.split( r"\n", message ):
+			i = 0
+			while i < len( msg ):
+				pad = leftText if i == 0 else ""
+				line = msg[i:i+lineLength]
+				i += lineLength
+				print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
+				linesPrinted += 1
 		
 		return linesPrinted
 		
