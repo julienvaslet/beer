@@ -236,5 +236,5 @@ class Unit():
 			- list -- the list of all units.
 		"""
 		
-		return Unit.units.keys()
+		return cls.units.keys()
 
