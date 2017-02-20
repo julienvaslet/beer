@@ -190,7 +190,7 @@ class Unit():
 		"""
 		
 		elements = None
-		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)\s*([a-zA-Z°]+(?:/[a-zA-Z°]+)?)\s*$", text )
+		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)\s*([a-zA-Z°%]+(?:/[a-zA-Z°%]+)?)\s*$", text )
 		
 		if match:
 			sign = -1.0 if match.group( 1 ) == "-" else 1.0
