@@ -27,7 +27,11 @@ class SpecificGravity(Density):
 
 	def __init__( self, value, unit=None ):
 		Unit.__init__( self, value, unit=unit )
-
+		
+		# Seems to be kg/m3 instead of g/cm3, auto-convert
+		if self._value > 500:
+			self._value /= 1000
+		
 
 class Points(Density):
 
