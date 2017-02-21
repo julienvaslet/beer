@@ -12,7 +12,7 @@ class BeerShell(shell.Shell):
 		self.addCommand( convertcommand.ConvertCommand() )
 	
 	def banner( self ):
-		self.print( " " )
+		self.print( "" )
 		self.print( "╻ ╻   ┏┓ ┏━╸┏━╸┏━┓   ╻" )
 		self.print( "╺╋╸   ┣┻┓┣╸ ┣╸ ┣┳┛   ╹" )
 		self.print( "╹ ╹   ┗━┛┗━╸┗━╸╹┗╸   ╹" )
@@ -23,13 +23,13 @@ class BeerShell(shell.Shell):
 	
 		if len( args ) == 0:
 			self.banner()
-			self.print( " " )
+			self.print( "" )
 			self.log( "Recipes: %d" % 0 )
 			self.log( "Malts: %d" % 0 )
 			self.log( "Hops: %d" % 0 )
 			
 			#self.log( "Planned: %d" % 0 )
 			#self.log( "In fermentation: %d" % 0 )
-			self.print( " " )
+			self.print( "" )
 	
 		shell.Shell.run( self, args )

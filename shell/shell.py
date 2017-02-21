@@ -396,13 +396,19 @@ class Shell():
 		linesPrinted = 0
 		
 		for msg in re.split( r"\n", message ):
-			i = 0
-			while i < len( msg ):
-				pad = leftText if i == 0 else ""
-				line = msg[i:i+lineLength]
-				i += lineLength
-				print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
+			
+			if len( msg ) == 0:
+				print( "", end=end )
 				linesPrinted += 1
+				
+			else:
+				i = 0
+				while i < len( msg ):
+					pad = leftText if i == 0 else ""
+					line = msg[i:i+lineLength]
+					i += lineLength
+					print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
+					linesPrinted += 1
 		
 		return linesPrinted
 		

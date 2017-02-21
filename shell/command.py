@@ -97,30 +97,74 @@ class HelpCommand(Command):
 	
 	def run( self, shell, args ):
 	
-		shell.print( "%s\n" % Language.get( HelpCommand, "commands_list" ), lpad=1 )
+		if len(args) > 1:
+			if args[1] in shell._commands:
+				commandName = args[1]
+				
+				# Avoid cyclic-dependencies
+				testedNames = []
 		
-		commandNameLength = 0
+				while isinstance( shell._commands[commandName], str ) and commandName not in testedNames:
+					testedNames.append( commandName )
+					commandName = shell._commands[commandName]
+					
+				if isinstance( shell._commands[commandName], Command ):
+					if args[1] == commandName:
+						shell.print( Language.get( HelpCommand, "help_of_command" ) % commandName, lpad=1 )
+					else:
+						shell.print( Language.get( HelpCommand, "help_of_alias" ) % (args[1], commandName), lpad=1 )
+					
+					shell.print( "" )
+					shell.print( shell._commands[commandName].getLongDescription(), lpad=2 )
+					
+				else:
+					shell.error( Language.get( HelpCommand, "unknown_command" ) % args[1] )
+				
+			else:
+				shell.error( Language.get( HelpCommand, "unknown_command" ) % args[1] )
 		
-		for command in shell._commands:
-			if commandNameLength < len(command):
-				commandNameLength = len(command)
+		else:
+			shell.print( "%s\n" % Language.get( HelpCommand, "commands_list" ), lpad=1 )
+		
+			commandNameLength = 0
+		
+			for command in shell._commands:
+				if commandNameLength < len(command):
+					commandNameLength = len(command)
 	
-		commandNameLength += 5
+			commandNameLength += 5
 		
-		for commandName in shell._commands:
-			command = shell._commands[commandName]
+			for commandName in shell._commands:
+				command = shell._commands[commandName]
 			
-			if isinstance( command, Command ):
-				description = command.getDescription()
-				lines = shell.print( description, leftText=" %s" % commandName, lpad=commandNameLength )
+				if isinstance( command, Command ):
+					description = command.getDescription()
+					lines = shell.print( description, leftText=" %s" % commandName, lpad=commandNameLength )
 			
-				# Print aliases' list if any
-				if len(command.getAliases()):
-					aliasTitle = "%s%s " % ( "".ljust( commandNameLength ), Language.get( HelpCommand, "aliases" ) )
-					lines += shell.print( ", ".join( command.getAliases() ), leftText=aliasTitle, lpad=len( aliasTitle ) )
+					# Print aliases' list if any
+					if len(command.getAliases()):
+						aliasTitle = "%s%s " % ( "".ljust( commandNameLength ), Language.get( HelpCommand, "aliases" ) )
+						lines += shell.print( ", ".join( command.getAliases() ), leftText=aliasTitle, lpad=len( aliasTitle ) )
 		
-				# If the command's information is larger than 1 line, empty line is added
-				if lines > 1:
-					shell.print( " " )
+					# If the command's information is larger than 1 line, empty line is added
+					if lines > 1:
+						shell.print( " " )
 		
 		return 0
+
+
+	def autocomplete( self, shell, args ):
+	
+		choices = []
+		
+		if len(args) == 2:
+		
+			for commandName in shell._commands:
+				if commandName == "help":
+					continue
+			
+				if commandName[:len(args[1])] == args[1]:
+					choices.append( commandName )
+		
+		return choices
+		
