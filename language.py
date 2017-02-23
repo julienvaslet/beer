@@ -4,6 +4,7 @@ import os
 import sys
 import errno
 import configparser
+import log
 
 class Language():
 	"""Represents the singleton Language class which provides localized texts.
@@ -31,6 +32,7 @@ class Language():
 		self._language = lang
 		self._path = path
 		self._content = {}
+		self._files = set()
 	
 	
 	@classmethod
@@ -47,8 +49,18 @@ class Language():
 		
 		if path == None:
 			path = os.path.dirname( os.path.abspath( sys.argv[0] ) ) + os.sep + "i18n"
+		
+		log.debug( "Initializing language \"%s\"." % lang )
+		
+		if cls._instance == None:
+			cls._instance = cls( lang, path )
+		
+		else:
+			loadedFiles = cls._instance._files
+			cls._instance = cls( lang, path )
 			
-		cls._instance = cls( lang, path )
+			for filename in loadedFiles:
+				cls._instance.load( filename )
 	
 	
 	@classmethod
@@ -65,7 +77,7 @@ class Language():
 	def getPath( cls, class_, key ):
 		"""Returns the full key-path according to class and key values."""
 		
-		return class_.__module__ + "." + class_.__qualname__ + "." + key
+		return class_.__module__ + "." + class_.__qualname__ + "." + key.lower()
 	
 	
 	@classmethod
@@ -74,16 +86,20 @@ class Language():
 		
 		language = cls.getInstance()
 		
-		if os.path.isfile( language._path + os.sep + language._language + os.sep + filename ):
-			config = configparser.ConfigParser()
-			config.read( language._path + os.sep + language._language + os.sep + filename )
+		if filename not in language._files:
+			if os.path.isfile( language._path + os.sep + language._language + os.sep + filename ):
+				log.debug( "Loading language file: %s..." % (language._language + os.sep + filename) )
+				language._files.add( filename )
 			
-			for section in config:
-				for key in config[section]:
-					language._content["%s.%s" % ( section, key )] = config[section][key]
+				config = configparser.ConfigParser()
+				config.read( language._path + os.sep + language._language + os.sep + filename )
 			
-		else:
-			raise FileNotFoundError( errno.ENOENT, os.strerror(errno.ENOENT), language._path + os.sep + language._language + os.sep + filename )
+				for section in config:
+					for key in config[section]:
+						language._content["%s.%s" % ( section, key )] = config[section][key]
+			
+			else:
+				raise FileNotFoundError( errno.ENOENT, os.strerror(errno.ENOENT), language._path + os.sep + language._language + os.sep + filename )
 	
 	
 	@classmethod
@@ -100,5 +116,6 @@ class Language():
 		if cls.getPath( class_, key ) in language._content:
 			return language._content[cls.getPath( class_, key )]
 		else:
+			log.warn( "Text not found: %s" % cls.getPath( class_, key ), level=2 )
 			return ""
 

@@ -6,10 +6,11 @@ from . import convertcommand
 
 class BeerShell(shell.Shell):
 
-	def __init__( self ):
-		shell.Shell.__init__( self, title="beer" )
+	def __init__( self, verbosity=1 ):
+		shell.Shell.__init__( self, title="beer", verbosity=verbosity )
 		Language.load( "beershell.ini" )
 		self.addCommand( convertcommand.ConvertCommand() )
+	
 	
 	def banner( self ):
 		self.print( "" )

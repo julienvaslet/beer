@@ -11,6 +11,10 @@ from .extract import *
 from .bitterness import *
 from .temperature import *
 
+from language import Language
+
+Language.load( "units.ini" )
+
 def _load_units( cls ):
 	"""Recursively loads all subclasses of Unit into *.units class variables."""
 	

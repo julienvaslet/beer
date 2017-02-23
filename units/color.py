@@ -1,12 +1,27 @@
 # -*- coding: utf-8 -*-
 
 from .unit import *
+from language import Language
 
 class Color(Unit):
 	"""Color unit class container."""
 
 	units = {}
+	srmNames = [2,3,4,6,9,12,15,18,20,24,30,40]
 	
+	def getColorName( self ):
+	
+		srmValue = self.getValue( unit="°SRM" )
+		closestSrm = Color.srmNames[0]
+		
+		for value in Color.srmNames:
+			if srmValue >= value:
+				closestSrm = value
+			else:
+				break
+		
+		return Language.get( Color, "color_%d_SRM" % closestSrm )
+
 
 class EBC(Color):
 
@@ -36,5 +51,5 @@ class SRM(Color):
 
 	def __init__( self, value, unit=None ):
 		Unit.__init__( self, value, unit=unit )
-
+		
 

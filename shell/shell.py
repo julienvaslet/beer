@@ -28,7 +28,7 @@ class Shell():
 		- (dict) _commands: Dictionary of registered commands.
 	"""
 
-	def __init__( self, title="" ):
+	def __init__( self, title="", verbosity=1 ):
 		"""Initialize a new shell."""
 
 		# Load localized strings
@@ -37,7 +37,7 @@ class Shell():
 		self._title = title
 		self._width = 80
 		self._running = False
-		self._verbosity = 1
+		self._verbosity = verbosity
 		self._commands = {}
 		
 		self.addCommand( ExitCommand() )
@@ -74,6 +74,21 @@ class Shell():
 		
 		if level <= self._verbosity:
 			self.print( message, leftText="[*]", lpad=4 )
+			
+	
+	def warn( self, message, level=1 ):
+		"""Prints a warning message to the shell output.
+		
+		Prints a warning message to the shell output. If the level is
+		lower than the shell verbosity, the message is ignored.
+		
+		Parameters:
+			- (str) message: The warning message to print.
+			- (int) level: The level of verbosity of the message (default: 1).
+		"""
+		
+		if level <= self._verbosity:
+			self.print( message, leftText="[!]", lpad=4 )
 			
 			
 	def exit( self ):

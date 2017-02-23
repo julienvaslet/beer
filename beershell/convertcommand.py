@@ -62,6 +62,10 @@ class ConvertCommand(command.Command):
 				elif not inKeyword:
 					for toUnit in value.getConversionUnits():
 						shell.print( value.toString( unit=toUnit ) )
+					
+					# Color name special case
+					if isinstance( value, color.Color ):
+						shell.print( value.getColorName() )
 				
 				else:
 					shell.error( Language.get( ConvertCommand, "in_keyword_alone" ) )
