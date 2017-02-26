@@ -182,19 +182,26 @@ class Unit():
 
 	@classmethod
 	def parse( cls, text ):
-		"""Parses a string representation of a unit into a tuple (float, str).
+		"""Parses a string representation of a unit into a tuple (float, str [, float]).
 		
 		Return value:
-			- float -- the number part of the string.
+			- float -- the number part of the string or the lower value or the range.
 			- str -- the unit part of the string.
+			- float -- the higher value of the range.
 		"""
 		
 		elements = None
-		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)\s*([a-zA-Z°%]+(?:/[a-zA-Z°%]+)?)\s*$", text )
+		match = re.match( r"^\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?)(?:\s*~\s*([+-]?)\s*([0-9]+(?:[.,][0-9]+)?))?\s*([a-zA-Z°%]+(?:/[a-zA-Z°%]+)?)\s*$", text )
 		
 		if match:
-			sign = -1.0 if match.group( 1 ) == "-" else 1.0
-			elements = ( sign * float( match.group( 2 ).replace( ",", "." ) ), match.group( 3 ) )
+			lsign = -1.0 if match.group( 1 ) == "-" else 1.0
+			
+			if match.group( 3 ) == None:
+				elements = ( lsign * float( match.group( 2 ).replace( ",", "." ) ), match.group( 5 ) )
+				
+			else:
+				hsign = -1.0 if match.group( 3 ) == "-" else 1.0
+				elements = ( lsign * float( match.group( 2 ).replace( ",", "." ) ), match.group( 5 ), hsign * float( match.group( 4 ).replace( ",", "." ) ) )
 		
 		return elements
 		
@@ -223,7 +230,11 @@ class Unit():
 		
 		if elements != None:
 			if elements[1] in Unit.units:
-				unit = Unit.units[elements[1]]( elements[0], elements[1] )
+			
+				if len(elements) > 2:
+					unit = Range( elements[0], elements[2], elements[1] )
+				else:
+					unit = Unit.units[elements[1]]( elements[0], unit=elements[1] )
 		
 		return unit
 		
@@ -237,4 +248,38 @@ class Unit():
 		"""
 		
 		return cls.units.keys()
+		
+		
+class Range(Unit):
+
+	def __init__( self, minValue, maxValue, unit ):
+		
+		self._min = Unit.units[unit]( minValue, unit=unit )
+		self._max = Unit.units[unit]( maxValue, unit=unit )
+		self._unit = self._min._unit
+		self._value = self.getValue()
+
+	
+	def getMin( self ):
+		return self._min
+		
+		
+	def getMax( self ):
+		return self._max
+		
+		
+	def getValue( self, unit=None ):
+		return (self._min.getValue( unit=unit ) + self._max.getValue( unit=unit )) / 2.0
+		
+		
+	def toString( self, unit=None, decompose=False ):
+		return "%s ~ %s" % ( Unit.formatValue( self._min.getValue( unit=unit ) ), self._max.toString( unit=unit ) )
+		
+		
+	def getBestUnit( self ):
+		return self._min.getBestUnit()
+
+
+	def getConversionUnits( self ):
+		return self._min.getConversionUnits()
 

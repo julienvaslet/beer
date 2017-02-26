@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = [ "unit", "time", "color", "weight", "volume", "density", "extract", "bitterness", "temperature" ]
+__all__ = [ "unit", "time", "color", "weight", "volume", "density", "extract", "proportion", "bitterness", "temperature" ]
 
 from .unit import *
 from .time import *
@@ -8,6 +8,7 @@ from .weight import *
 from .volume import *
 from .density import *
 from .extract import *
+from .proportion import *
 from .bitterness import *
 from .temperature import *
 

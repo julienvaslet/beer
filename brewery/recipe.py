@@ -14,9 +14,12 @@ class Recipe():
 		self._fermentationProfile = None
 		self._carbonatationProfile = None
 		
-		self._originalGravity = Unit.create( "0SG" )
-		self._finalGravity = Unit.create( "0SG" )
-		self._color = Unit.create( "0EBC" )
-		self._alcoholByVolume = 0
-		self._bitterness = 0
-		self._aromas = []
+		# self._fermentiscibleSugars = ?
+		# self._nonFermentiscibleSugars = ?
+		
+		#self._originalGravity = Unit.create( "0SG" )
+		#self._finalGravity = Unit.create( "0SG" )
+		#self._color = Unit.create( "0EBC" )
+		#self._alcoholByVolume = 0
+		#self._bitterness = 0
+		#self._aromas = []
