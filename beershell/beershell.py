@@ -2,14 +2,16 @@
 
 from shell import *
 from language import Language
-from . import convertcommand
+from .convertcommand import ConvertCommand
+from .hopcommand import HopCommand
 
 class BeerShell(shell.Shell):
 
 	def __init__( self, verbosity=1 ):
 		shell.Shell.__init__( self, title="beer", verbosity=verbosity )
 		Language.load( "beershell.ini" )
-		self.addCommand( convertcommand.ConvertCommand() )
+		self.addCommand( ConvertCommand() )
+		self.addCommand( HopCommand() )
 	
 	
 	def banner( self ):
