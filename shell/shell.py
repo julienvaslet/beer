@@ -6,10 +6,10 @@ import os
 import tty
 import termios
 
-from .command import *
+from . import commands
 from language import Language
 
-wordSeparators = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
+WORD_SEPARATORS = [ " ", ",", ".", ";", ":", "!", "+", "-", "*", "/", "\\", "=", "(", ")", "{", "}", "[", "]", "^", "&", "|", ">", "<" ]
 
 class Shell():
 	"""Represents an interactive command interpreter.
@@ -40,8 +40,8 @@ class Shell():
 		self._verbosity = verbosity
 		self._commands = {}
 		
-		self.addCommand( ExitCommand() )
-		self.addCommand( HelpCommand() )
+		self.add_command( commands.Exit() )
+		self.add_command( commands.Help() )
 		
 		
 	def error( self, message, code=0 ):
@@ -73,7 +73,7 @@ class Shell():
 		"""
 		
 		if level <= self._verbosity:
-			self.print( message, leftText="[*]", lpad=4 )
+			self.print( message, left_text="[*]", lpad=4 )
 			
 	
 	def warn( self, message, level=1 ):
@@ -88,7 +88,7 @@ class Shell():
 		"""
 		
 		if level <= self._verbosity:
-			self.print( message, leftText="[!]", lpad=4 )
+			self.print( message, left_text="[!]", lpad=4 )
 			
 			
 	def exit( self ):
@@ -111,15 +111,15 @@ class Shell():
 		sequence = b""
 
 		fd = sys.stdin.fileno()
-		oldSettings = termios.tcgetattr( fd )
-		newSettings = termios.tcgetattr( fd )
-		newSettings[3] = newSettings[3] & ~termios.ICANON & ~termios.ECHO
-		newSettings[6][termios.VMIN] = 1
-		newSettings[6][termios.VTIME] = 0
+		old_settings = termios.tcgetattr( fd )
+		new_settings = termios.tcgetattr( fd )
+		new_settings[3] = new_settings[3] & ~termios.ICANON & ~termios.ECHO
+		new_settings[6][termios.VMIN] = 1
+		new_settings[6][termios.VTIME] = 0
 
-		termios.tcsetattr( fd, termios.TCSANOW, newSettings )
+		termios.tcsetattr( fd, termios.TCSANOW, new_settings )
 		
-		escapeRegex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
+		escape_regex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
 
 		try:
 			complete = False
@@ -127,11 +127,11 @@ class Shell():
 			while not complete:
 				sequence += os.read( fd, 1 )
 			
-				if not escapeRegex.match( sequence ):
+				if not escape_regex.match( sequence ):
 					complete = True
 
 		finally:
-			termios.tcsetattr( fd, termios.TCSADRAIN, oldSettings )
+			termios.tcsetattr( fd, termios.TCSADRAIN, old_settings )
 
 		return sequence
 		
@@ -148,12 +148,12 @@ class Shell():
 		
 		choices = []
 		
-		args = self.parseLine( line, keepTrailingSpace=True )
+		args = self.parse_line( line, keep_trailing_space=True )
 		
 		if len(args) == 1:
-			for commandName in self._commands:
-				if commandName[:len(args[0])] == args[0]:
-					choices.append( commandName )
+			for command_name in self._commands:
+				if command_name[:len(args[0])] == args[0]:
+					choices.append( command_name )
 					
 		elif len(args) > 1:
 			if args[0] in self._commands:
@@ -162,16 +162,16 @@ class Shell():
 		return choices
 		
 		
-	def parseLine( self, line, keepTrailingSpace=False ):
+	def parse_line( self, line, keep_trailing_space=False ):
 		"""Parses the specified command line into an arguments array.
 		
 		Parses the specified command line into an arguments array. If the
-		keepTrailingSpace boolean is set and the command line ends with spaces,
+		keep_trailing_space boolean is set and the command line ends with spaces,
 		an empty string is added to the arguments list.
 		
 		Parameters:
 			- (str) line: The command line.
-			- (bool) keepTrailingSpace: Keep trailing spaces (default: False).
+			- (bool) keep_trailing_space: Keep trailing spaces (default: False).
 		
 		Returns:
 			- list -- the arguments.
@@ -183,8 +183,8 @@ class Shell():
 		for match in matches:
 			args.append( match[0] if len( match[0] ) else match[1] )
 		
-		if keepTrailingSpace:
-			if re.search( r"[^\s]+\s+$", line ) and keepTrailingSpace:
+		if keep_trailing_space:
+			if re.search( r"[^\s]+\s+$", line ) and keep_trailing_space:
 				args.append( "" )
 		
 		return args
@@ -204,42 +204,42 @@ class Shell():
 		"""
 		
 		line = ""
-		lineIndex = 0
-		lastLineIndex = 0
-		lastLength = 0
-		lineRead = False
-		rewriteLine = False
-		shouldBeep = False
-		newLine = True
+		line_index = 0
+		last_line_index = 0
+		last_length = 0
+		line_read = False
+		rewrite_line = False
+		should_beep = False
+		new_line = True
 		
-		while not lineRead:
+		while not line_read:
 		
 			# Print the line to the console
-			if newLine:
-				output = prompt + line + "\b" * (len(line) - lineIndex)
+			if new_line:
+				output = prompt + line + "\b" * (len(line) - line_index)
 				os.write( sys.stdout.fileno(), output.encode() )
 				
-				newLine = False
+				new_line = False
 			
-			elif rewriteLine:
-				output = ("\b" * lastLineIndex) + line
+			elif rewrite_line:
+				output = ("\b" * last_line_index) + line
 				
-				if lastLength > len(line):
-					output += " " * (lastLength - len(line))
-					output += "\b" * (lastLength - len(line))
+				if last_length > len(line):
+					output += " " * (last_length - len(line))
+					output += "\b" * (last_length - len(line))
 					
-				output += "\b" * (len(line) - lineIndex)
+				output += "\b" * (len(line) - line_index)
 				
 				os.write( sys.stdout.fileno(), output.encode() )
 			
 			# Emits console beep
-			elif shouldBeep:
+			elif should_beep:
 				os.write( sys.stdout.fileno(), b"\x07" )
 			
-			rewriteLine = False
-			shouldBeep = False
-			lastLineIndex = lineIndex
-			lastLength = len(line)
+			rewrite_line = False
+			should_beep = False
+			last_line_index = line_index
+			last_length = len(line)
 		
 			rawkey = self.getch()
 			
@@ -252,17 +252,17 @@ class Shell():
 			
 			# End of line
 			if key == "\x0a":
-				lineRead = True
+				line_read = True
 				
 			# Home
 			elif key == "\x1b[H":
-				lineIndex = 0
-				rewriteLine = True
+				line_index = 0
+				rewrite_line = True
 				
 			# End
 			elif key == "\x1b[F":
-				lineIndex = len(line)
-				rewriteLine = True
+				line_index = len(line)
+				rewrite_line = True
 			
 			# Tabulation
 			elif key == "\x09":
@@ -270,40 +270,40 @@ class Shell():
 				
 				if len(choices) > 0:
 					if len(choices) == 1:
-						args = self.parseLine( line, keepTrailingSpace=True )
+						args = self.parse_line( line, keep_trailing_space=True )
 						args[len(args) - 1] = choices[0] + " "
 						
 						line = " ".join( args )
-						lineIndex = len(line)
-						rewriteLine = True
+						line_index = len(line)
+						rewrite_line = True
 						
 					else:
 						# Prints available choices
-						maxChoiceLength = 0
+						max_choice_length = 0
 						
 						for choice in choices:
-							if len(choice) > maxChoiceLength:
-								maxChoiceLength = len(choice)
+							if len(choice) > max_choice_length:
+								max_choice_length = len(choice)
 								
-						maxChoiceLength += 2
-						choiceLineLength = 0
+						max_choice_length += 2
+						choice_line_length = 0
 						
 						output = "\n"
 						
 						for choice in choices:
-							if choiceLineLength + maxChoiceLength > self._width:
-								choiceLineLength = 0
+							if choice_line_length + max_choice_length > self._width:
+								choice_line_length = 0
 								output += "\n"
 								
-							output += choice.ljust( maxChoiceLength )
-							choiceLineLength += maxChoiceLength
+							output += choice.ljust( max_choice_length )
+							choice_line_length += max_choice_length
 							
 						output += "\n"
 						
 						os.write( sys.stdout.fileno(), output.encode() )
-						newLine = True
+						new_line = True
 				else:
-					shouldBeep = True
+					should_beep = True
 				
 			# Up
 			#elif key == "\x1b[A":
@@ -316,82 +316,82 @@ class Shell():
 			# Left
 			elif key == "\x1b[D":
 			
-				if lineIndex > 0:
-					lineIndex -= 1
-					rewriteLine = True
+				if line_index > 0:
+					line_index -= 1
+					rewrite_line = True
 				
 				else:
-					shouldBeep = True
+					should_beep = True
 					
 			# Ctrl+Left
 			# Jump at the beginning of the word
 			elif key == "\x1b[1;5D":
 			
 				# Purge separators
-				while lineIndex > 0 and line[lineIndex - 1] in wordSeparators:
-					lineIndex -= 1
+				while line_index > 0 and line[line_index - 1] in WORD_SEPARATORS:
+					line_index -= 1
 			
 				# Jump at the beginning of current word
-				while lineIndex > 0 and line[lineIndex - 1] not in wordSeparators:
-					lineIndex -= 1
+				while line_index > 0 and line[line_index - 1] not in WORD_SEPARATORS:
+					line_index -= 1
 					
-				rewriteLine = True
+				rewrite_line = True
 			
 			# Right
 			elif key == "\x1b[C":
 			
-				if lineIndex < len(line):
-					lineIndex += 1
-					rewriteLine = True
+				if line_index < len(line):
+					line_index += 1
+					rewrite_line = True
 				
 				else:
-					shouldBeep = True
+					should_beep = True
 			
 			# Ctrl+Right
 			# Jump at the end of the word
 			elif key == "\x1b[1;5C":
 			
 				# Purge separators
-				while lineIndex < len(line) and line[lineIndex] in wordSeparators:
-					lineIndex += 1
+				while line_index < len(line) and line[line_index] in WORD_SEPARATORS:
+					line_index += 1
 			
 				# Jump at the next separator
-				while lineIndex < len(line) and line[lineIndex] not in wordSeparators:
-					lineIndex += 1
+				while line_index < len(line) and line[line_index] not in WORD_SEPARATORS:
+					line_index += 1
 					
-				rewriteLine = True
+				rewrite_line = True
 				
 			# Backspace
 			elif key == "\x7f":
-				if len(line) > 0 and lineIndex > 0:
-					line = line[:lineIndex - 1] + line[lineIndex:]
-					lineIndex -= 1
-					rewriteLine = True
+				if len(line) > 0 and line_index > 0:
+					line = line[:line_index - 1] + line[line_index:]
+					line_index -= 1
+					rewrite_line = True
 					
 				else:
-					shouldBeep = True
+					should_beep = True
 					
 			# Delete
 			elif key == "\x1b[3~":
-				if len(line) > 0 and lineIndex < len(line):
-					line = line[:lineIndex] + line[lineIndex + 1:]
-					rewriteLine = True
+				if len(line) > 0 and line_index < len(line):
+					line = line[:line_index] + line[line_index + 1:]
+					rewrite_line = True
 					
 				else:
-					shouldBeep = True
+					should_beep = True
 				
 			# Printable character
 			elif len(key) == 1 and ord(key) >= 32:
-				line = line[:lineIndex] + key + line[lineIndex:]
-				lineIndex += 1
+				line = line[:line_index] + key + line[line_index:]
+				line_index += 1
 				
-				rewriteLine = True
+				rewrite_line = True
 		
 		os.write( sys.stdout.fileno(), b"\n" )
 		return line
 		
 		
-	def print( self, message, end="\n", leftText="", lpad=0 ):
+	def print( self, message, end="\n", left_text="", lpad=0 ):
 		"""Prints a message to the shell output.
 		
 		Prints a message to the shell output. This message could be left-padded
@@ -400,54 +400,54 @@ class Shell():
 		Parameters:
 			- (str) message: The message to print.
 			- (str) end: The end of message separator (default "\n").
-			- (str) leftText: The text printed in the left padding (default: "").
+			- (str) left_text: The text printed in the left padding (default: "").
 			- (int) lpad: The left padding width (default: 0).
 		
 		Returns:
 			- int -- the number of lines printed.
 		"""
 		
-		lineLength = self._width - lpad
-		linesPrinted = 0
+		line_length = self._width - lpad
+		lines_printed = 0
 		
 		for msg in re.split( r"\n", message ):
 			
 			if len( msg ) == 0:
 				print( "", end=end )
-				linesPrinted += 1
+				lines_printed += 1
 				
 			else:
 				i = 0
 				while i < len( msg ):
-					pad = leftText if i == 0 else ""
-					line = msg[i:i+lineLength]
-					i += lineLength
+					pad = left_text if i == 0 else ""
+					line = msg[i:i+line_length]
+					i += line_length
 					print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
-					linesPrinted += 1
+					lines_printed += 1
 		
-		return linesPrinted
+		return lines_printed
 		
 	
-	def addCommand( self, command ):
+	def add_command( self, command ):
 		"""Adds a command to the shell.
 		
 		Parameters:
-			- (shell.command.Command) command: The command to add.
+			- (shell.commands.Command) command: The command to add.
 		"""
 	
-		if isinstance( command, Command ):
+		if isinstance( command, commands.Command ):
 			
-			if command.getName() in self._commands:
-				self.log( Language.get( Shell, "replacing_command" ) % command.getName(), level=3 )
+			if command.name in self._commands:
+				self.log( Language.get( Shell, "replacing_command" ) % command.name, level=3 )
 			else:
-				self.log( Language.get( Shell, "loading_command" ) % command.getName(), level=3 )
+				self.log( Language.get( Shell, "loading_command" ) % command.name, level=3 )
 			
-			self._commands[command.getName()] = command
+			self._commands[command.name] = command
 			
-			for alias in command.getAliases():
+			for alias in command.aliases:
 				if alias not in self._commands:
-					self.log( Language.get( Shell, "adding_alias" ) % ( alias, command.getName() ), level=3 )
-					self._commands[alias] = command.getName()
+					self.log( Language.get( Shell, "adding_alias" ) % ( alias, command.name ), level=3 )
+					self._commands[alias] = command.name
 					
 				else:
 					self.log( Language.get( Shell, "ignoring_alias" ) % alias, level=3 )
@@ -466,17 +466,17 @@ class Shell():
 		command = None
 	
 		if args[0] in self._commands:
-			commandName = args[0]
+			command_name = args[0]
 		
 			# Avoid cyclic-dependencies
-			testedNames = []
+			tested_names = []
 		
-			while isinstance( self._commands[commandName], str ) and commandName not in testedNames:
-				testedNames.append( commandName )
-				commandName = self._commands[commandName]
+			while isinstance( self._commands[command_name], str ) and command_name not in tested_names:
+				tested_names.append( command_name )
+				command_name = self._commands[command_name]
 		
-			if isinstance( self._commands[commandName], Command ):
-				command = self._commands[commandName]
+			if isinstance( self._commands[command_name], commands.Command ):
+				command = self._commands[command_name]
 		
 		if command != None:
 			command.run( self, args )
@@ -498,7 +498,7 @@ class Shell():
 			while self._running:
 				try:
 					commandline = self.input( "%s > " % self._title )
-					args = self.parseLine( commandline )
+					args = self.parse_line( commandline )
 
 					if len( args ) == 0:
 						continue

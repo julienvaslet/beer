@@ -10,8 +10,8 @@ class BeerShell(shell.Shell):
 	def __init__( self, verbosity=1 ):
 		shell.Shell.__init__( self, title="beer", verbosity=verbosity )
 		Language.load( "beershell.ini" )
-		self.addCommand( ConvertCommand() )
-		self.addCommand( HopCommand() )
+		self.add_command( ConvertCommand() )
+		self.add_command( HopCommand() )
 	
 	
 	def banner( self ):
