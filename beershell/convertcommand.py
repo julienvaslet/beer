@@ -5,10 +5,10 @@ from language import Language
 
 import re
 
-class ConvertCommand(command.Command):
+class ConvertCommand(commands.Command):
 
 	def __init__( self ):
-		command.Command.__init__( self, "convert" )
+		commands.Command.__init__( self, "convert" )
 		
 	
 	def run( self, shell, args ):
@@ -18,54 +18,54 @@ class ConvertCommand(command.Command):
 			return 1
 		
 		args.pop( 0 )
-		sValue = args[0]
+		s_value = args[0]
 		args.pop( 0 )
 		
 		value = None
-		elements = unit.Unit.parse( sValue )
+		elements = unit.Unit.parse( s_value )
 		
 		# Unit may be the next argument
 		if elements == None and len(args) > 0:
-			sValue += args[0]
+			s_value += args[0]
 			args.pop( 0 )
 
-			elements = unit.Unit.parse( sValue )
+			elements = unit.Unit.parse( s_value )
 		
 		# If the value could be parsed as an handled unit
 		if elements != None:
-			value = unit.Unit.create( sValue )
+			value = unit.Unit.create( s_value )
 			
 			if value != None:
-				toUnit = None
-				inKeyword = False
+				to_unit = None
+				in_keyword = False
 			
 				if len(args) > 0 and args[0] == "in":
-					inKeyword = True
+					in_keyword = True
 					args.pop( 0 )
 			
 				if len(args) > 0:
-					toUnit = args[0]
+					to_unit = args[0]
 					args.pop( 0 )
 				
-				if toUnit != None:
-					if toUnit in unit.Unit.units:
-						if toUnit in value.getConversionUnits():
-							shell.print( value.toString( unit=toUnit ) )
+				if to_unit != None:
+					if to_unit in unit.Unit.units:
+						if to_unit in value.conversion_units:
+							shell.print( value.to_string( unit=to_unit ) )
 							
 						else:
-							shell.error( Language.get( ConvertCommand, "conversion_not_implemented" ) % (elements[1], toUnit) )
+							shell.error( Language.get( ConvertCommand, "conversion_not_implemented" ) % (elements[1], to_unit) )
 							return 3
 					else:
-						shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % toUnit )
+						shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % to_unit )
 						return 2
 				
-				elif not inKeyword:
-					for toUnit in value.getConversionUnits():
-						shell.print( value.toString( unit=toUnit ) )
+				elif not in_keyword:
+					for to_unit in value.conversion_units:
+						shell.print( value.to_string( unit=to_unit ) )
 					
 					# Color name special case
 					if isinstance( value, color.Color ):
-						shell.print( value.getColorName() )
+						shell.print( value.name )
 				
 				else:
 					shell.error( Language.get( ConvertCommand, "in_keyword_alone" ) )
@@ -84,32 +84,32 @@ class ConvertCommand(command.Command):
 	def autocomplete( self, shell, args ):
 	
 		choices = []
-		unitAsTwoArgs = False
+		unit_as_two_args = False
 	
 		if len(args) > 1:
 			args.pop( 0 )
 		
-			sValue = args[0]
+			s_value = args[0]
 			args.pop( 0 )
-			elements = unit.Unit.parse( sValue )
+			elements = unit.Unit.parse( s_value )
 		
 			# Unit may be the next argument
 			if elements == None:
 				if len(args) > 0:
-					unitAsTwoArgs = True
-					sValue += args[0]
+					unit_as_two_args = True
+					s_value += args[0]
 					args.pop( 0 )
 
-					elements = unit.Unit.parse( sValue )
+					elements = unit.Unit.parse( s_value )
 				
 				# No unit specified
-				elif re.search( r"^[+-]?[0-9]+(?:[\.,][0-9]+)?$", sValue ):
-					choices = unit.Unit.getAllUnits()
+				elif re.search( r"^[+-]?[0-9]+(?:[\.,][0-9]+)?$", s_value ):
+					choices = unit.Unit.get_all_units()
 		
 			# If the value could be parsed as an handled unit
 			if elements != None:
-				value = unit.Unit.create( sValue )
-				incompleteUnit = False
+				value = unit.Unit.create( s_value )
+				incomplete_unit = False
 				
 				if value != None:
 					if len(args) == 1 and args[0] == "in"[:len(args[0])]:
@@ -120,26 +120,26 @@ class ConvertCommand(command.Command):
 							args.pop( 0 )
 						
 							if len(args) == 1:
-								toUnit = args[0]
+								to_unit = args[0]
 							
-								for conversionUnit in value.getConversionUnits():
-									if conversionUnit[:len(toUnit)].lower() == toUnit.lower():
-										choices.append( conversionUnit )
+								for conversion_unit in value.conversion_units:
+									if conversion_unit[:len(to_unit)].lower() == to_unit.lower():
+										choices.append( conversion_unit )
 					
 					else:
-						incompleteUnit = True
+						incomplete_unit = True
 				
 				else:
-					incompleteUnit = True
+					incomplete_unit = True
 				
 				# Incomplete unit					
-				if incompleteUnit:
-					for u in unit.Unit.getAllUnits():
+				if incomplete_unit:
+					for u in unit.Unit.get_all_units():
 						if u[:len(elements[1])].lower() == elements[1].lower():
-							if unitAsTwoArgs:
+							if unit_as_two_args:
 								choices.append( u )
 							else:
-								choices.append( "%s%s" % (unit.Unit.formatValue( elements[0] ),u) )
+								choices.append( "%s%s" % (unit.Unit.format_value( elements[0] ),u) )
 		
 		return choices
 	

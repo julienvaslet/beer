@@ -5,10 +5,10 @@ from language import Language
 
 import re
 
-class HopCommand(command.Command):
+class HopCommand(commands.Command):
 
 	def __init__( self ):
-		command.Command.__init__( self, "hop" )
+		commands.Command.__init__( self, "hop" )
 		
 	
 	# hop list purpose=[aroma|dual|bitterness] country=[a-z] ...

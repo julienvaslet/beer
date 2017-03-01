@@ -31,7 +31,7 @@ class Unit():
 		self._unit = self.unit
 		
 	
-	def getValue( self, unit=None ):
+	def get_value( self, unit=None ):
 		"""Returns the value, in the specified unit or the default one.
 		
 		Returns the value, in the specified unit. If no unit is specified the
@@ -54,28 +54,28 @@ class Unit():
 				v /= self.multiples[unit]
 				
 			else:
-				unitFound = False
+				unit_found = False
 				
-				for conversionUnit in self.conversions:
-					if unit == conversionUnit:				
-						v = self.conversions[conversionUnit]( v )
-						unitFound = True
+				for conversion_unit in self.conversions:
+					if unit == conversion_unit:				
+						v = self.conversions[conversion_unit]( v )
+						unit_found = True
 						break
 						
 					else:
-						if conversionUnit in self.units and unit in self.units[conversionUnit].multiples:
-							transitionUnit = Unit.units[conversionUnit]( self.conversions[conversionUnit]( v ), unit=conversionUnit )
-							v = transitionUnit.getValue( unit=unit )
-							unitFound = True
+						if conversion_unit in self.units and unit in self.units[conversion_unit].multiples:
+							transition_unit = Unit.units[conversion_unit]( self.conversions[conversion_unit]( v ), unit=conversion_unit )
+							v = transition_unit.getValue( unit=unit )
+							unit_found = True
 							break
 							
-				if not unitFound:
+				if not unit_found:
 					v = None
 		
 		return v
 	
-	
-	def getConversionUnits( self ):
+	@property
+	def conversion_units( self ):
 		"""Returns the available units for conversion.
 		
 		Return value:
@@ -87,15 +87,16 @@ class Unit():
 		for multiple in self.multiples:
 			units.append( multiple )
 			
-		for conversionUnit in self.conversions:
-			if conversionUnit in Unit.units:
-				for multiple in Unit.units[conversionUnit].multiples:
+		for conversion_unit in self.conversions:
+			if conversion_unit in Unit.units:
+				for multiple in Unit.units[conversion_unit].multiples:
 					units.append( multiple )
 		
 		return units
 	
-		
-	def getBestUnit( self ):
+	
+	@property
+	def best_unit( self ):
 		"""Returns the proper unit to print the value.
 		
 		Return value:
@@ -105,7 +106,7 @@ class Unit():
 		return self.unit
 		
 	
-	def toString( self, unit=None, decompose=False ):
+	def to_string( self, unit=None, decompose=False ):
 		"""Returns the unit, converted, in string format post-fixed by the unit.
 		
 		Parameters:
@@ -119,65 +120,65 @@ class Unit():
 		value = self._value
 		
 		if unit != None:
-			value = self.getValue( unit=unit )
+			value = self.get_value( unit=unit )
 			
 			if value == None:
 				value = self._value
 				unit = self.unit
 		
 		elif not decompose:
-			unit = self.getBestUnit()
+			unit = self.best_unit()
 			value /= self.multiples[unit]
 		
 		else:
 			unit = self._unit
 			
 		if not decompose:
-			return "%s %s" % ( Unit.formatValue( value ), unit )
+			return "%s %s" % ( Unit.format_value( value ), unit )
 			
 		else:
 			values = []
-			lastUnit = ""
+			last_unit = ""
 			
 			multiples = OrderedDict( sorted( Unit.units[unit].multiples.items(), key=lambda k: k[1], reverse=True ) )
 			
 			# Get the value in the smallest unit
 			for multiple in multiples:
-				lastUnit = multiple
+				last_unit = multiple
 			
-			value = self.getValue( unit=lastUnit )
+			value = self.get_value( unit=last_unit )
 			
 			# Update multiples factors
 			for multiple in multiples:
-				if multiple != lastUnit:
-					multiples[multiple] /= multiples[lastUnit]
+				if multiple != last_unit:
+					multiples[multiple] /= multiples[last_unit]
 					
-			multiples[lastUnit] = 1.0
+			multiples[last_unit] = 1.0
 			
 			# Decompose value
 			for multiple in multiples:
-				multipleValue = 0
+				multiple_value = 0
 				
 				while value >= multiples[multiple]:
-					multipleValue += 1
+					multiple_value += 1
 					value -= multiples[multiple]
 				
-				if multipleValue > 0:
-					values.append( "%s %s" % ( Unit.formatValue( multipleValue ), multiple ) )
+				if multiple_value > 0:
+					values.append( "%s %s" % ( Unit.format_value( multiple_value ), multiple ) )
 			
 			if len(values) > 0:
 				return " ".join( values )
 				
 			else:
-				return "0 %s" % lastUnit
+				return "0 %s" % last_unit
 
 
 	def __repr__( self ):
-		return self.toString()
+		return self.to_string()
 		
 	
 	def __str__( self ):
-		return self.toString()
+		return self.to_string()
 		
 
 	@classmethod
@@ -207,7 +208,7 @@ class Unit():
 		
 	
 	@classmethod
-	def formatValue( cls, value ):
+	def format_value( cls, value ):
 		"""Convert a float to a standardized string."""
 	
 		return re.sub( r"\.?0+$", "", "%0.3f" % round( value, 3 ) )
@@ -240,7 +241,7 @@ class Unit():
 		
 		
 	@classmethod
-	def getAllUnits( cls ):
+	def get_all_units( cls ):
 		"""Returns the list of all loaded units.
 		
 		Return value:
@@ -252,34 +253,38 @@ class Unit():
 		
 class Range(Unit):
 
-	def __init__( self, minValue, maxValue, unit ):
+	def __init__( self, min_value, max_value, unit ):
 		
-		self._min = Unit.units[unit]( minValue, unit=unit )
-		self._max = Unit.units[unit]( maxValue, unit=unit )
+		self._min = Unit.units[unit]( min_value, unit=unit )
+		self._max = Unit.units[unit]( max_value, unit=unit )
 		self._unit = self._min._unit
-		self._value = self.getValue()
-
-	
-	def getMin( self ):
+		self._value = self.get_value()
+		
+		
+	#TODO: Should keep?
+	def get_min( self ):
 		return self._min
 		
 		
-	def getMax( self ):
+	#TODO: Should keep?
+	def get_max( self ):
 		return self._max
 		
 		
-	def getValue( self, unit=None ):
-		return (self._min.getValue( unit=unit ) + self._max.getValue( unit=unit )) / 2.0
+	def get_value( self, unit=None ):
+		return (self._min.get_value( unit=unit ) + self._max.get_value( unit=unit )) / 2.0
 		
 		
-	def toString( self, unit=None, decompose=False ):
-		return "%s ~ %s" % ( Unit.formatValue( self._min.getValue( unit=unit ) ), self._max.toString( unit=unit ) )
+	def to_string( self, unit=None, decompose=False ):
+		return "%s ~ %s" % ( Unit.format_value( self._min.get_value( unit=unit ) ), self._max.to_string( unit=unit ) )
 		
-		
-	def getBestUnit( self ):
-		return self._min.getBestUnit()
+	
+	@property
+	def best_unit( self ):
+		return self._min.best_unit()
 
 
-	def getConversionUnits( self ):
-		return self._min.getConversionUnits()
+	@property
+	def conversion_units( self ):
+		return self._min.conversion_units()
 

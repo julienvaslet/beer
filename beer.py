@@ -15,6 +15,7 @@ if __name__ == "__main__":
 	
 	Language.initialize( lang="en" )
 	Language.load( "hops.ini" )
+	Language.load( "ingredients.ini" )
 	ingredient.Ingredient.loadDirectory( "data%singredients" % os.sep )
 
 	argv = sys.argv

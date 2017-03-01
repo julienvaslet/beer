@@ -19,19 +19,19 @@ Language.load( "units.ini" )
 def _load_units( cls ):
 	"""Recursively loads all subclasses of Unit into *.units class variables."""
 	
-	for unitClass in cls.__subclasses__():
-		_load_units( unitClass )
+	for unit_cls in cls.__subclasses__():
+		_load_units( unit_cls )
 		
 		# If the class is an Unit
-		if "unit" in unitClass.__dict__:
-			cls.units[unitClass.unit] = unitClass
+		if "unit" in unit_cls.__dict__:
+			cls.units[unit_cls.unit] = unit_cls
 			
-			for multiple in unitClass.multiples:
-				cls.units[multiple] = unitClass
+			for multiple in unit_cls.multiples:
+				cls.units[multiple] = unit_cls
 		
 		# If the class is an Unit-container it is merged with its parent
-		elif "units" in unitClass.__dict__:
-			cls.units = { **cls.units, **unitClass.units }
+		elif "units" in unit_cls.__dict__:
+			cls.units = { **cls.units, **unit_cls.units }
 
 
 # Recursively load all units

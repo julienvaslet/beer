@@ -20,6 +20,8 @@ class Ingredient():
 		self._aliases = []
 		self._styles = []
 		self._substitutes = []
+		self._characteristics = []
+		self._country = None
 		
 		if "aliases" in config["ingredient"]:
 			self._aliases = re.split( r"\s*,\s*", config["ingredient"]["aliases"] )
@@ -29,6 +31,12 @@ class Ingredient():
 		
 		if "substitutes" in config["ingredient"]:
 			self._substitutes = re.split( r"\s*,\s*", config["ingredient"]["substitutes"] )
+			
+		if "characteristics" in config["ingredient"]:
+			self._characteristics = re.split( r"\s*,\s*", config["ingredient"]["characteristics"] )
+		
+		if "country" in config["ingredient"]:
+			self._country = Language.get( Ingredient, "country_%s" % Ingredient.sanitizeName( config["ingredient"]["country"] ) )
 		
 		
 	def getName( self ):
@@ -41,10 +49,14 @@ class Ingredient():
 		return Ingredient.sanitizeName( self._name )
 		
 		
+	def getCountry( self ):
+		return self._country
+		
+		
 	@classmethod
 	def sanitizeName( cls, name ):
 	
-		return name.lower()
+		return name.strip().lower()
 	
 		
 	@classmethod

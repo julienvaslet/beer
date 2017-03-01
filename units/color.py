@@ -7,10 +7,10 @@ class Color(Unit):
 	"""Color unit class container."""
 
 	units = {}
-	srmNames = [2,3,4,6,9,12,15,18,20,24,30,40]
+	srm_names = [2,3,4,6,9,12,15,18,20,24,30,40]
 	
 	# Functions are Lagrange interpolations from a set of predefined colors
-	rgbFunctions = {
+	rgb_functions = {
 		"r": {
 			"max": 80,
 			"fx": lambda x: round( (-32477 * pow(x,6) / 1769040000000) + (10511 * pow(x,5) / 2268000000) - (31861909 * pow(x,4) / 70761600000) + (142540771 * pow(x,3) / 7076160000) - (36465581 * pow(x,2) / 117936000) - (57530597 * x / 8845200) + 255 )
@@ -25,33 +25,35 @@ class Color(Unit):
 		}
 	}
 	
+	@property
+	def name( self ):
 	
-	def getColorName( self ):
-	
-		srmValue = self.getValue( unit="°SRM" )
-		closestSrm = Color.srmNames[0]
+		srm_value = self.getValue( unit="°SRM" )
+		closest_srm = Color.srm_names[0]
 		
-		for value in Color.srmNames:
-			if srmValue >= value:
-				closestSrm = value
+		for value in Color.srm_names:
+			if srm_value >= value:
+				closest_srm = value
 			else:
 				break
 		
-		return Language.get( Color, "color_%d_SRM" % closestSrm )
+		return Language.get( Color, "color_%d_SRM" % closest_srm )
 		
+	
+	@property
+	def rgb( self ):
+		srm_value = self.getValue( unit="°SRM" )
 		
-	def getRGBColor( self ):
-		srmValue = self.getValue( unit="°SRM" )
-		
-		r = 0 if srmValue >= Color.rgbFunctions["r"]["max"] else Color.rgbFunctions["r"]["fx"]( srmValue )
-		g = 0 if srmValue >= Color.rgbFunctions["g"]["max"] else Color.rgbFunctions["g"]["fx"]( srmValue )
-		b = 0 if srmValue >= Color.rgbFunctions["b"]["max"] else Color.rgbFunctions["b"]["fx"]( srmValue )
+		r = 0 if srm_value >= Color.rgb_functions["r"]["max"] else Color.rgb_functions["r"]["fx"]( srm_value )
+		g = 0 if srm_value >= Color.rgb_functions["g"]["max"] else Color.rgb_functions["g"]["fx"]( srm_value )
+		b = 0 if srm_value >= Color.rgb_functions["b"]["max"] else Color.rgb_functions["b"]["fx"]( srm_value )
 		
 		return (r, g, b)
 
 
-	def getHexColor( self ):
-		return "#%02x%02x%02x" % self.getRGBColor()
+	@property
+	def hex( self ):
+		return "#%02x%02x%02x" % self.rgb
 
 
 class EBC(Color):
