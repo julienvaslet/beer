@@ -20,7 +20,7 @@ class HopCommand(commands.Command):
 			return 1
 		
 		args.pop( 0 )
-		sValue = args[0]
+		s_value = args[0]
 		args.pop( 0 )
 		
 		return 0
