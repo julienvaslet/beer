@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-currentShell = None
+current_shell = None
 verbosity = 1
 
 # Verbosities are:
@@ -10,43 +10,43 @@ verbosity = 1
 #	- 3: development debug
 
 def info( message, level=1 ):
-	global currentShell
+	global current_shell
 	global verbosity
 	
-	if currentShell == None:
+	if current_shell == None:
 		if verbosity >= level:
 			print( "[*] %s" % message )
 	else:
-		currentShell.log( message, level=level )
+		current_shell.log( message, level=level )
 		
 
 def debug( message ):
-	global currentShell
+	global current_shell
 	global verbosity
 	
-	if currentShell == None:
+	if current_shell == None:
 		if verbosity >= 3:
 			print( "[*] %s" % message )
 	else:
-		currentShell.log( message, level=3 )
+		current_shell.log( message, level=3 )
 		
 
 def warn( message, level=1 ):
-	global currentShell
+	global current_shell
 	global verbosity
 	
-	if currentShell == None:
+	if current_shell == None:
 		if verbosity >= level:
 			print( "[!] %s" % message )
 	else:
-		currentShell.warn( message, level=level )
+		current_shell.warn( message, level=level )
 		
 
 def error( message ):	
-	global currentShell
+	global current_shell
 	
-	if currentShell == None:
+	if current_shell == None:
 		print( "[!] %s" % message, file=sys.stderr )
 	else:
-		currentShell.error( message )
+		current_shell.error( message )
 

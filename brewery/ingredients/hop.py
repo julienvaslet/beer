@@ -9,9 +9,9 @@ class Hop(Ingredient):
 	
 		Ingredient.__init__( self, config )
 		
-		self._alpha_acid = unit.Unit.create( config["hop"]["alpha_acid"] ) if "alpha_acid" in config["hop"] else None
-		self._cohumulone = unit.Unit.create( config["hop"]["cohumulone"] ) if "cohumulone" in config["hop"] else None
-		self._beta_acid = unit.Unit.create( config["hop"]["beta_acid"] ) if "beta_acid" in config["hop"] else None
+		self.alpha_acid = unit.Unit.create( config["hop"]["alpha_acid"] ) if "alpha_acid" in config["hop"] else None
+		self.cohumulone = unit.Unit.create( config["hop"]["cohumulone"] ) if "cohumulone" in config["hop"] else None
+		self.beta_acid = unit.Unit.create( config["hop"]["beta_acid"] ) if "beta_acid" in config["hop"] else None
 		
 		self._humulene_oil = unit.Unit.create( config["hop"]["humulene_oil"] ) if "humulene_oil" in config["hop"] else None
 		self._myrcene_oil = unit.Unit.create( config["hop"]["myrcene_oil"] ) if "myrcene_oil" in config["hop"] else None
@@ -19,7 +19,7 @@ class Hop(Ingredient):
 		self._farnesene_oil = unit.Unit.create( config["hop"]["farnesene_oil"] ) if "farnesene_oil" in config["hop"] else None
 		self._oil_volume_per_100g = unit.Unit.create( config["hop"]["oil_volume_per_100g"] ) if "oil_volume_per_100g" in config["hop"] else None
 
-		self._purpose = config["hop"]["purpose"] if "purpose" in config["hop"] and config["hop"]["purpose"] in ["aroma", "bitterness", "dual"] else None
+		self.purpose = config["hop"]["purpose"] if "purpose" in config["hop"] and config["hop"]["purpose"] in ["aroma", "bitterness", "dual"] else None
 		
 		# General infos
 		#cone_density = Loose to moderate
@@ -32,17 +32,5 @@ class Hop(Ingredient):
 		#resistant to (Language)
 		#susceptible to (Language)
 		
-	
-	def getPurpose( self ):
-		return self._purpose
-		
-	def getAlphaAcid( self ):
-		return self._alpha_acid
-		
-	def getCohumulone( self ):
-		return self._cohumulone
-		
-	def getBetaAcid( self ):
-		return self._beta_acid
 		
 

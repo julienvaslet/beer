@@ -56,10 +56,10 @@ class Language():
 			cls._instance = cls( lang, path )
 		
 		else:
-			loadedFiles = cls._instance._files
+			loaded_files = cls._instance._files
 			cls._instance = cls( lang, path )
 			
-			for filename in loadedFiles:
+			for filename in loaded_files:
 				cls._instance.load( filename )
 	
 	
@@ -74,7 +74,7 @@ class Language():
 	
 	
 	@classmethod
-	def getPath( cls, class_, key ):
+	def get_path( cls, class_, key ):
 		"""Returns the full key-path according to class and key values."""
 		
 		return class_.__module__ + "." + class_.__qualname__ + "." + key.lower()
@@ -113,9 +113,9 @@ class Language():
 		
 		language = cls.getInstance()
 		
-		if cls.getPath( class_, key ) in language._content:
-			return language._content[cls.getPath( class_, key )]
+		if cls.get_path( class_, key ) in language._content:
+			return language._content[cls.get_path( class_, key )]
 		else:
-			log.warn( "Text not found: %s" % cls.getPath( class_, key ), level=2 )
+			log.warn( "Text not found: %s" % cls.get_path( class_, key ), level=2 )
 			return ""
 

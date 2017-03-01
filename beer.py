@@ -16,12 +16,12 @@ if __name__ == "__main__":
 	Language.initialize( lang="en" )
 	Language.load( "hops.ini" )
 	Language.load( "ingredients.ini" )
-	ingredient.Ingredient.loadDirectory( "data%singredients" % os.sep )
+	ingredient.Ingredient.load_directory( "data%singredients" % os.sep )
 
 	argv = sys.argv
 	argv.pop( 0 )
 	
 	shell = beershell.BeerShell( verbosity=log.verbosity )
-	log.currentShell = shell
+	log.current_shell = shell
 	
 	shell.run( argv )

@@ -15,52 +15,43 @@ class Ingredient():
 
 	def __init__( self, config ):
 	
-		self._name = config["ingredient"]["name"]
-		self._description = Language.get( self.__class__, "%s_description" % self.getCleanName() )
-		self._aliases = []
-		self._styles = []
-		self._substitutes = []
-		self._characteristics = []
-		self._country = None
+		self.name = config["ingredient"]["name"]
+		self.description = Language.get( self.__class__, "%s_description" % self.clean_name )
+		self.aliases = []
+		self.styles = []
+		self.substitutes = []
+		self.characteristics = []
+		self.country = None
 		
 		if "aliases" in config["ingredient"]:
-			self._aliases = re.split( r"\s*,\s*", config["ingredient"]["aliases"] )
+			self.aliases = re.split( r"\s*,\s*", config["ingredient"]["aliases"] )
 		
 		if "styles" in config["ingredient"]:
-			self._styles = re.split( r"\s*,\s*", config["ingredient"]["styles"] )
+			self.styles = re.split( r"\s*,\s*", config["ingredient"]["styles"] )
 		
 		if "substitutes" in config["ingredient"]:
-			self._substitutes = re.split( r"\s*,\s*", config["ingredient"]["substitutes"] )
+			self.substitutes = re.split( r"\s*,\s*", config["ingredient"]["substitutes"] )
 			
 		if "characteristics" in config["ingredient"]:
-			self._characteristics = re.split( r"\s*,\s*", config["ingredient"]["characteristics"] )
+			self.characteristics = re.split( r"\s*,\s*", config["ingredient"]["characteristics"] )
 		
 		if "country" in config["ingredient"]:
-			self._country = Language.get( Ingredient, "country_%s" % Ingredient.sanitizeName( config["ingredient"]["country"] ) )
+			self.country = Language.get( Ingredient, "country_%s" % Ingredient.sanitize_name( config["ingredient"]["country"] ) )
 		
 		
-	def getName( self ):
-	
-		return self._name
-		
-		
-	def getCleanName( self ):
-	
-		return Ingredient.sanitizeName( self._name )
-		
-		
-	def getCountry( self ):
-		return self._country
+	@property
+	def clean_name( self ):
+		return Ingredient.sanitize_name( self.name )
 		
 		
 	@classmethod
-	def sanitizeName( cls, name ):
+	def sanitize_name( cls, name ):
 	
 		return name.strip().lower()
 	
 		
 	@classmethod
-	def loadDirectory( cls, dirpath ):
+	def load_directory( cls, dirpath ):
 		
 		if os.path.abspath( dirpath ) != dirpath:
 			dirpath = os.path.dirname( os.path.abspath( sys.argv[0] ) ) + os.sep + dirpath
@@ -69,7 +60,7 @@ class Ingredient():
 			filepath = dirpath + os.sep + f
 		
 			if os.path.isdir( filepath ):
-				cls.loadDirectory( filepath )
+				cls.load_directory( filepath )
 				
 			elif os.path.isfile( filepath ) and re.search( "\.ini$", f ):
 				cls.load( filepath )
@@ -85,7 +76,7 @@ class Ingredient():
 			if "ingredient" in config:
 				
 				if "name" in config["ingredient"]:
-					name = cls.sanitizeName( config["ingredient"]["name"] )
+					name = cls.sanitize_name( config["ingredient"]["name"] )
 				
 				class_ = Ingredient	
 				
