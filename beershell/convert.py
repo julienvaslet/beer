@@ -5,7 +5,7 @@ from language import Language
 
 import re
 
-class ConvertCommand(commands.Command):
+class Command(commands.Command):
 
 	def __init__( self ):
 		commands.Command.__init__( self, "convert" )
@@ -14,7 +14,7 @@ class ConvertCommand(commands.Command):
 	def run( self, shell, args ):
 	
 		if len(args) < 2:
-			shell.print( Language.get( ConvertCommand, "help_message" ) % args[0], lpad=1 )
+			shell.print( Language.get( Command, "help_message" ) % args[0], lpad=1 )
 			return 1
 		
 		args.pop( 0 )
@@ -53,10 +53,10 @@ class ConvertCommand(commands.Command):
 							shell.print( value.to_string( unit=to_unit ) )
 							
 						else:
-							shell.error( Language.get( ConvertCommand, "conversion_not_implemented" ) % (elements[1], to_unit) )
+							shell.error( Language.get( Command, "conversion_not_implemented" ) % (elements[1], to_unit) )
 							return 3
 					else:
-						shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % to_unit )
+						shell.error( Language.get( Command, "unit_not_handled" ) % to_unit )
 						return 2
 				
 				elif not in_keyword:
@@ -68,14 +68,14 @@ class ConvertCommand(commands.Command):
 						shell.print( value.name )
 				
 				else:
-					shell.error( Language.get( ConvertCommand, "in_keyword_alone" ) )
+					shell.error( Language.get( Command, "in_keyword_alone" ) )
 					return 1
 			
 			else:
-				shell.error( Language.get( ConvertCommand, "unit_not_handled" ) % elements[1] )
+				shell.error( Language.get( Command, "unit_not_handled" ) % elements[1] )
 				return 2
 		else:
-			shell.error( Language.get( ConvertCommand, "it_is_not_an_unit" ) )
+			shell.error( Language.get( Command, "it_is_not_an_unit" ) )
 			return 2
 		
 		return 0

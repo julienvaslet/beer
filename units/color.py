@@ -28,7 +28,7 @@ class Color(Unit):
 	@property
 	def name( self ):
 	
-		srm_value = self.getValue( unit="°SRM" )
+		srm_value = self.get_value( unit="°SRM" )
 		closest_srm = Color.srm_names[0]
 		
 		for value in Color.srm_names:
@@ -42,7 +42,7 @@ class Color(Unit):
 	
 	@property
 	def rgb( self ):
-		srm_value = self.getValue( unit="°SRM" )
+		srm_value = self.get_value( unit="°SRM" )
 		
 		r = 0 if srm_value >= Color.rgb_functions["r"]["max"] else Color.rgb_functions["r"]["fx"]( srm_value )
 		g = 0 if srm_value >= Color.rgb_functions["g"]["max"] else Color.rgb_functions["g"]["fx"]( srm_value )

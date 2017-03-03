@@ -5,7 +5,7 @@ from language import Language
 
 import re
 
-class HopCommand(commands.Command):
+class Command(commands.Command):
 
 	def __init__( self ):
 		commands.Command.__init__( self, "hop" )
@@ -16,7 +16,7 @@ class HopCommand(commands.Command):
 	def run( self, shell, args ):
 	
 		if len(args) < 2:
-			shell.print( Language.get( HopCommand, "help_message" ) % args[0], lpad=1 )
+			shell.print( Language.get( Command, "help_message" ) % args[0], lpad=1 )
 			return 1
 		
 		args.pop( 0 )

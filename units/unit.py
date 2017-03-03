@@ -65,7 +65,7 @@ class Unit():
 					else:
 						if conversion_unit in self.units and unit in self.units[conversion_unit].multiples:
 							transition_unit = Unit.units[conversion_unit]( self.conversions[conversion_unit]( v ), unit=conversion_unit )
-							v = transition_unit.getValue( unit=unit )
+							v = transition_unit.get_value( unit=unit )
 							unit_found = True
 							break
 							
