@@ -127,7 +127,7 @@ class Unit():
 				unit = self.unit
 		
 		elif not decompose:
-			unit = self.best_unit()
+			unit = self.best_unit
 			value /= self.multiples[unit]
 		
 		else:
@@ -281,10 +281,10 @@ class Range(Unit):
 	
 	@property
 	def best_unit( self ):
-		return self._min.best_unit()
+		return self._min.best_unit
 
 
 	@property
 	def conversion_units( self ):
-		return self._min.conversion_units()
+		return self._min.conversion_units
 

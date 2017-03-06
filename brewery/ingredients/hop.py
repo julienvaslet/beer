@@ -9,9 +9,9 @@ class Hop(Ingredient):
 	
 		Ingredient.__init__( self, config )
 		
-		self.alpha_acid = unit.Unit.create( config["hop"]["alpha_acid"] ) if "alpha_acid" in config["hop"] else None
+		self.alpha_acids = unit.Unit.create( config["hop"]["alpha_acids"] ) if "alpha_acids" in config["hop"] else None
 		self.cohumulone = unit.Unit.create( config["hop"]["cohumulone"] ) if "cohumulone" in config["hop"] else None
-		self.beta_acid = unit.Unit.create( config["hop"]["beta_acid"] ) if "beta_acid" in config["hop"] else None
+		self.beta_acids = unit.Unit.create( config["hop"]["beta_acids"] ) if "beta_acids" in config["hop"] else None
 		
 		self._humulene_oil = unit.Unit.create( config["hop"]["humulene_oil"] ) if "humulene_oil" in config["hop"] else None
 		self._myrcene_oil = unit.Unit.create( config["hop"]["myrcene_oil"] ) if "myrcene_oil" in config["hop"] else None
@@ -33,4 +33,13 @@ class Hop(Ingredient):
 		#susceptible to (Language)
 		
 		
+	@classmethod
+	def list_hops( cls, name=None ):
+		hops = []
+		
+		for ingredient in cls._ingredients:
 
+			if isinstance( cls._ingredients[ingredient], Hop ):
+				hops.append( cls._ingredients[ingredient] )
+	
+		return hops
