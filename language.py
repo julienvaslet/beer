@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 import errno
 import configparser
 import log
@@ -96,7 +97,18 @@ class Language():
 			
 				for section in config:
 					for key in config[section]:
-						language._content["%s.%s" % ( section, key )] = config[section][key]
+						value = config[section][key]
+						matches = re.findall( r"\[\[([^\]]+)\]\]", value )
+						
+						# Replacing references
+						if len( matches ):
+							for match in matches:
+								if match in language._content:
+									value = value.replace( "[[%s]]" % match, language._content[match] )
+								else:
+									value = value.replace( "[[%s]]" % match, "" )
+						
+						language._content["%s.%s" % ( section, key )] = value
 			
 			else:
 				raise FileNotFoundError( errno.ENOENT, os.strerror(errno.ENOENT), language._path + os.sep + language._language + os.sep + filename )
@@ -113,7 +125,7 @@ class Language():
 		
 		language = cls.getInstance()
 		
-		if cls.get_path( class_, key ) in language._content:
+		if cls.get_path( class_, key ) in language._content:			
 			return language._content[cls.get_path( class_, key )]
 		else:
 			log.warn( "Text not found: %s" % cls.get_path( class_, key ), level=2 )
