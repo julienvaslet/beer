@@ -98,7 +98,7 @@ class Language():
 				for section in config:
 					for key in config[section]:
 						value = config[section][key]
-						matches = re.findall( r"\[\[([^\]]+)\]\]", value )
+						matches = re.findall( r"\[\[([A-Za-z0-9\._]+)\]\]", value )
 						
 						# Replacing references
 						if len( matches ):

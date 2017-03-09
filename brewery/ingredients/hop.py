@@ -17,20 +17,10 @@ class Hop(Ingredient):
 		self._myrcene_oil = unit.Unit.create( config["hop"]["myrcene_oil"] ) if "myrcene_oil" in config["hop"] else None
 		self._caryophyllene_oil = unit.Unit.create( config["hop"]["caryophyllene_oil"] ) if "caryophyllene_oil" in config["hop"] else None
 		self._farnesene_oil = unit.Unit.create( config["hop"]["farnesene_oil"] ) if "farnesene_oil" in config["hop"] else None
+		self._geraniol_oil = unit.Unit.create( config["hop"]["geraniol_oil"] ) if "geraniol_oil" in config["hop"] else None
 		self._oil_volume_per_100g = unit.Unit.create( config["hop"]["oil_volume_per_100g"] ) if "oil_volume_per_100g" in config["hop"] else None
 
 		self.purpose = config["hop"]["purpose"] if "purpose" in config["hop"] and config["hop"]["purpose"] in ["aroma", "bitterness", "dual"] else None
-		
-		# General infos
-		#cone_density = Loose to moderate
-		#growth_rate = Moderate
-		#yield_amount = 800-1200 kg/hectare
-		#seasonal_maturity = Mid
-		#storability = Retains 45%-55% alpha acid after 6 monthes storage at 20 °C
-		#east_of_harvest = Moderate
-		#cone_size = Small to medium
-		#resistant to (Language)
-		#susceptible to (Language)
 		
 		
 	@classmethod
