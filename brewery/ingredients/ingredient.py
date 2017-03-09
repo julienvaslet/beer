@@ -6,6 +6,7 @@ import errno
 import configparser
 import log
 import re
+import unicodedata
 from language import Language
 
 class Ingredient():
@@ -47,7 +48,7 @@ class Ingredient():
 	@classmethod
 	def sanitize_name( cls, name ):
 	
-		return name.strip().lower()
+		return re.sub( r"[^a-z0-9_]", "", re.sub( r"\s+", "_", unicodedata.normalize( 'NFKD', name ).strip().lower() ) )
 	
 		
 	@classmethod
