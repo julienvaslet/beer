@@ -32,3 +32,16 @@ class Hop(Ingredient):
 				hops.append( cls._ingredients[ingredient] )
 	
 		return sorted( hops, key=lambda h: h.name )
+		
+		
+	@classmethod
+	def get( cls, name ):
+		hop = None
+		sane_name = cls.sanitize_name( name )
+		
+		if sane_name in cls._ingredients:
+			if isinstance( cls._ingredients[sane_name], Hop ):
+				hop = cls._ingredients[sane_name]
+		
+		return hop
+	

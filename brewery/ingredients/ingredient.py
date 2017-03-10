@@ -25,19 +25,24 @@ class Ingredient():
 		self.country = None
 		
 		if "aliases" in config["ingredient"]:
-			self.aliases = re.split( r"\s*,\s*", config["ingredient"]["aliases"] )
+			self.aliases = list(filter(len, re.split( r"\s*,\s*", config["ingredient"]["aliases"] )))
 		
 		if "styles" in config["ingredient"]:
-			self.styles = re.split( r"\s*,\s*", config["ingredient"]["styles"] )
+			self.styles = list(filter(len, re.split( r"\s*,\s*", config["ingredient"]["styles"] )))
 		
 		if "substitutes" in config["ingredient"]:
-			self.substitutes = re.split( r"\s*,\s*", config["ingredient"]["substitutes"] )
+			self.substitutes = list(filter(len, re.split( r"\s*,\s*", config["ingredient"]["substitutes"] )))
 			
 		if "characteristics" in config["ingredient"]:
-			self.characteristics = re.split( r"\s*,\s*", config["ingredient"]["characteristics"] )
+			self.characteristics = list(filter(len, re.split( r"\s*,\s*", config["ingredient"]["characteristics"] )))
 		
 		if "country" in config["ingredient"]:
-			self.country = Language.get( Ingredient, "country_%s" % Ingredient.sanitize_name( config["ingredient"]["country"] ) )
+			self.country = Ingredient.sanitize_name( config["ingredient"]["country"] )
+		
+		
+	@property
+	def country_name( self ):
+		return Language.get( Ingredient, "country_%s" % self.country )
 		
 		
 	@property
