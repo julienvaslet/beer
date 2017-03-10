@@ -157,6 +157,7 @@ class Shell():
 					
 		elif len(args) > 1:
 			if args[0] in self._commands:
+				#TODO: warn if command is str
 				choices = self._commands[args[0]].autocomplete( self, args )
 		
 		return choices

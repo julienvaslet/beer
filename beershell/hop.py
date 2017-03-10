@@ -25,6 +25,22 @@ class Command(commands.Command):
 	def autocomplete( self, shell, args ):
 	
 		choices = []
+		args.pop( 0 )
+		
+		if len(args) == 1:
+			for cmd in self._shell._commands:
+				if cmd in ["quit", "exit", "help"]:
+					continue
+			
+				if cmd[:len(args[0])] == args[0]:
+					choices.append( cmd )
+					
+		else:
+			if args[0] in self._shell._commands:
+				command = self._shell._commands[args[0]]
+				#TODO: warn if command is str
+				choices = command.autocomplete( self._shell, args )
+		
 		return choices
 
 
@@ -169,7 +185,16 @@ class Info(commands.Command):
 		
 	def autocomplete( self, shell, args ):
 	
-		choices = []	
+		choices = []
+	
+		args.pop( 0 )
+		hop_name = " ".join( args )
+		
+		if len(hop_name):
+			for hop in Hop.list_hops():
+				if hop.name[:len(hop_name)].lower() == hop_name.lower():
+					choices.append( hop.name )
+		
 		return choices
 
 
