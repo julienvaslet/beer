@@ -36,9 +36,9 @@ class Command(commands.Command):
 					choices.append( cmd )
 					
 		else:
-			if args[0] in self._shell._commands:
-				command = self._shell._commands[args[0]]
-				#TODO: warn if command is str
+			command = self._shell.get_command( args[0] )
+			
+			if command != None:
 				choices = command.autocomplete( self._shell, args )
 		
 		return choices
