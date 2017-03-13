@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import numbers
 from collections import OrderedDict
 
 class Unit():
@@ -180,6 +181,131 @@ class Unit():
 	def __str__( self ):
 		return self.to_string()
 		
+	
+	def __imul__( self, value ):
+		from .proportion import Proportion
+	
+		if isinstance( value, numbers.Real ):
+			self._value *= value
+		
+		elif isinstance( value, Proportion ):
+			self._value *= value.numeric_value
+		
+		else:
+			raise NotImplementedError()
+		
+		return self
+	
+	
+	def __mul__( self, value ):
+		copy = self.copy()
+		copy *= value
+		
+		return copy
+	
+	
+	def __rmul__( self, value ):
+		copy = self.copy()
+		copy *= value
+		
+		return copy
+		
+	
+	def __itruediv__( self, value ):
+		if isinstance( value, numbers.Real ):
+			self._value /= value
+		
+		else:
+			raise NotImplementedError()
+		
+		return self
+	
+	
+	def __truediv__( self, value ):
+		copy = None
+	
+		if isinstance( value, numbers.Real ):
+			copy = self.copy()
+			copy /= value
+		
+		elif isinstance( value, self.__class__ ):
+			copy = Unit.create( "%f %%" % ((self._value / value.get_value( unit=self._unit )) * 100) )
+			
+		else:
+			raise NotImplementedError()
+		
+		return copy
+	
+	
+	# Is it meaningless?
+	def __rtruediv__( self, value ):
+		copy = self.copy()
+		copy /= value
+		
+		return copy
+		
+	
+	def __iadd__( self, value ):
+		from .proportion import Proportion
+		
+		if isinstance( value, self.__class__ ):
+			self._value += value
+		
+		elif isinstance( value, Proportion ):
+			self._value += self._value * value.numeric_value
+		
+		else:
+			raise NotImplementedError()
+		
+		return self
+	
+	
+	def __add__( self, value ):
+		copy = self.copy()
+		copy += value
+		
+		return copy
+	
+	
+	def __radd__( self, value ):
+		copy = self.copy()
+		copy += value
+		
+		return copy
+		
+	
+	def __isub__( self, value ):
+		from .proportion import Proportion
+		
+		if isinstance( value, self.__class__ ):
+			self._value -= value._value
+			
+		elif isinstance( value, Proportion ):
+			self._value -= self._value * value.numeric_value
+		
+		else:
+			raise NotImplementedError()
+		
+		return self
+	
+	
+	def __sub__( self, value ):
+		copy = self.copy()
+		copy -= value
+		
+		return copy
+	
+	
+	def __rsub__( self, value ):
+		copy = self.copy()
+		copy += -1 * value
+		
+		return copy
+	
+	
+	def copy( self ):
+		return self.__class__( self._value, unit=self._unit )
+
 
 	@classmethod
 	def parse( cls, text ):
@@ -287,4 +413,40 @@ class Range(Unit):
 	@property
 	def conversion_units( self ):
 		return self._min.conversion_units
+		
+		
+	def copy( self ):
+		return self.__class__( self._min._value, self._max._value, self._unit )
+		
+		
+	def __imul__( self, value ):
+		self._min *= value
+		self._max *= value
+		self._value = self.get_value()
+		
+		return self
+		
+		
+	def __iadd__( self, value ):
+		self._min += value
+		self._max += value
+		self._value = self.get_value()
+		
+		return self
+	
+	
+	def __isub__( self, value ):
+		self._min -= value
+		self._max -= value
+		self._value = self.get_value()
+		
+		return self
+	
+	
+	def __itruediv__( self, value ):
+		self._min /= value
+		self._max /= value
+		self._value = self.get_value()
+		
+		return self
 

@@ -5,6 +5,11 @@ from .unit import *
 class Proportion(Unit):
 	
 	units = {}
+	
+	@property
+	def numeric_value( self ):
+		return self._value
+
 
 class Percentage(Proportion):
 	"""Percentage."""
@@ -16,4 +21,7 @@ class Percentage(Proportion):
 	def __init__( self, value, unit=None ):
 		Unit.__init__( self, value, unit=unit )
 	
-
+	
+	@property
+	def numeric_value( self ):
+		return self._value / 100.0

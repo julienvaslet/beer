@@ -22,24 +22,49 @@ class Hop(Ingredient):
 		self.purpose = config["hop"]["purpose"] if "purpose" in config["hop"] and config["hop"]["purpose"] in ["aroma", "bitterness", "dual"] else None
 	
 	
-	def get_humulene_volume( self ):
-		return None #self.humulene
+	def get_humulene_volume( self, hop_weight=None ):
+		volume = None
+		
+		if self.humulene and self.oil_volume_per_100g:
+			volume = self.oil_volume_per_100g * self.humulene
+		
+		return volume
 		
 	
-	def get_myrcene_volume( self, weight=None ):
-		return None #self.myrcene
+	def get_myrcene_volume( self, hop_weight=None ):
+		volume = None
+		
+		if self.myrcene and self.oil_volume_per_100g:
+			volume = self.oil_volume_per_100g * self.myrcene
+		
+		return volume
 
 
-	def get_caryophyllene_volume( self, weight=None ):
-		return None #self.caryophyllene
+	def get_caryophyllene_volume( self, hop_weight=None ):
+		volume = None
+		
+		if self.caryophyllene and self.oil_volume_per_100g:
+			volume = self.oil_volume_per_100g * self.caryophyllene
+		
+		return volume
 
 
-	def get_farnesene_volume( self, weigth=None ):
-		return None #self.farnesene
+	def get_farnesene_volume( self, hop_weight=None ):
+		volume = None
+		
+		if self.farnesene and self.oil_volume_per_100g:
+			volume = self.oil_volume_per_100g * self.farnesene
+		
+		return volume
 	
 	
-	def get_oil_volume( self, weigth=None ):
-		return None #self._oil_volume_per_100g
+	def get_oil_volume( self, hop_weight=None ):
+		reference_weight = unit.Unit.create( "100g" )
+		
+		if hop_weight == None or not isinstance( hop_weight, weight.Weight ):
+			hop_weight = reference_weight.copy()
+		
+		return self.oil_volume_per_100g * (hop_weight / reference_weight)
 	
 	
 	@classmethod
