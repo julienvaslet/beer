@@ -156,9 +156,10 @@ class Shell():
 					choices.append( command_name )
 					
 		elif len(args) > 1:
-			if args[0] in self._commands:
-				#TODO: warn if command is str
-				choices = self._commands[args[0]].autocomplete( self, args )
+			command = self.get_command( args[0] )
+			
+			if command != None:
+				choices = command.autocomplete( self, args )
 		
 		return choices
 		
@@ -482,6 +483,23 @@ class Shell():
 			self.error( Language.get( Shell, "command_not_loaded" ) )
 	
 	
+	def get_command( self, command_name ):
+		command = None
+	
+		if command_name in self._commands:
+			# Avoid cyclic-dependencies
+			tested_names = []
+	
+			while isinstance( self._commands[command_name], str ) and command_name not in tested_names:
+				tested_names.append( command_name )
+				command_name = self._commands[command_name]
+	
+			if isinstance( self._commands[command_name], commands.Command ):
+				command = self._commands[command_name]
+				
+		return command
+	
+	
 	def execute( self, args=[] ):
 		"""Executes a parsed command line.
 		
@@ -489,20 +507,7 @@ class Shell():
 			- (list) args: The parsed command line.
 		"""
 		
-		command = None
-	
-		if args[0] in self._commands:
-			command_name = args[0]
-		
-			# Avoid cyclic-dependencies
-			tested_names = []
-		
-			while isinstance( self._commands[command_name], str ) and command_name not in tested_names:
-				tested_names.append( command_name )
-				command_name = self._commands[command_name]
-		
-			if isinstance( self._commands[command_name], commands.Command ):
-				command = self._commands[command_name]
+		command = self.get_command( args[0] )
 		
 		if command != None:
 			command.run( self, args )
