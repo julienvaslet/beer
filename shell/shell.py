@@ -268,10 +268,10 @@ class Shell():
 			# Tabulation
 			elif key == "\x09":
 				choices = self.autocomplete( line )
+				args = self.parse_line( line, keep_trailing_space=True )
 				
 				if len(choices) > 0:
 					if len(choices) == 1:
-						args = self.parse_line( line, keep_trailing_space=True )
 						args[len(args) - 1] = choices[0] + " "
 						
 						line = " ".join( args )
@@ -279,6 +279,31 @@ class Shell():
 						rewrite_line = True
 						
 					else:
+						# Partial autocompletion
+						similar_characters = 0
+						
+						while similar_characters < len(choices[0]):
+							is_similar = True
+							
+							for choice in choices:
+								if choice[similar_characters] != choices[0][similar_characters]:
+									is_similar = False
+									break
+								
+							if is_similar:
+								similar_characters += 1
+								
+							else:
+								break
+						
+						if similar_characters > 1:
+							args[len(args) - 1] = choices[0][:similar_characters]
+						
+							line = " ".join( args )
+							line_index = len(line)
+							rewrite_line = True
+							
+						
 						# Prints available choices
 						max_choice_length = 0
 						
