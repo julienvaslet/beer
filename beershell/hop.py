@@ -143,21 +143,45 @@ class Info(commands.Command):
 				if hop.beta_acids:
 					shell.print( hop.beta_acids.to_string(), left_text=" %s" % Language.get( Info, "beta_acids" ), lpad=left_length )
 				
-				# TODO: Do not access values by protected member
-				if hop._humulene_oil:
-					shell.print( hop._humulene_oil.to_string(), left_text=" %s" % Language.get( Info, "humulene" ), lpad=left_length )
+
+				if hop.humulene:
+					humulene_text = hop.humulene.to_string()
+					humulene_volume = hop.get_humulene_volume()
+					
+					if humulene_volume != None:
+						humulene_text += " (%s/100 g)" % humulene_volume.to_string( "mL" )
+					
+					shell.print( humulene_text, left_text=" %s" % Language.get( Info, "humulene" ), lpad=left_length )
 				
-				if hop._myrcene_oil:
-					shell.print( hop._myrcene_oil.to_string(), left_text=" %s" % Language.get( Info, "myrcene" ), lpad=left_length )
+				if hop.myrcene:
+					myrcene_text = hop.myrcene.to_string()
+					myrcene_volume = hop.get_myrcene_volume()
+					
+					if myrcene_volume != None:
+						myrcene_text += " (%s/100 g)" % myrcene_volume.to_string( "mL" )
+						
+					shell.print( myrcene_text, left_text=" %s" % Language.get( Info, "myrcene" ), lpad=left_length )
 				
-				if hop._caryophyllene_oil:
-					shell.print( hop._caryophyllene_oil.to_string(), left_text=" %s" % Language.get( Info, "caryophyllene" ), lpad=left_length )
+				if hop.caryophyllene:
+					caryophyllene_text = hop.caryophyllene.to_string()
+					caryophyllene_volume = hop.get_caryophyllene_volume()
+					
+					if caryophyllene_volume != None:
+						caryophyllene_text += " (%s/100 g)" % caryophyllene_volume.to_string( "mL" )
+						
+					shell.print( caryophyllene_text, left_text=" %s" % Language.get( Info, "caryophyllene" ), lpad=left_length )
 				
-				if hop._farnesene_oil:
-					shell.print( hop._farnesene_oil.to_string(), left_text=" %s" % Language.get( Info, "farnesene" ), lpad=left_length )
+				if hop.farnesene:
+					farnesene_text = hop.farnesene.to_string()
+					farnesene_volume = hop.get_farnesene_volume()
+					
+					if farnesene_volume != None:
+						farnesene_text += " (%s/100 g)" % farnesene_volume.to_string( "mL" )
+						
+					shell.print( farnesene_text, left_text=" %s" % Language.get( Info, "farnesene" ), lpad=left_length )
 				
-				if hop._oil_volume_per_100g:
-					shell.print( hop._oil_volume_per_100g.to_string( unit="mL" ), left_text=" %s" % Language.get( Info, "oil_per_100g" ), lpad=left_length )
+				if hop.oil_volume_per_100g:
+					shell.print( hop.oil_volume_per_100g.to_string( unit="mL" ), left_text=" %s" % Language.get( Info, "oil_per_100g" ), lpad=left_length )
 				
 				shell.print( "" )
 				
