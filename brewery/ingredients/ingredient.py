@@ -60,7 +60,7 @@ class Ingredient():
 	def load_directory( cls, dirpath ):
 		
 		if os.path.abspath( dirpath ) != dirpath:
-			dirpath = os.path.dirname( os.path.abspath( sys.argv[0] ) ) + os.sep + dirpath
+			dirpath = os.path.dirname( os.path.realpath( os.path.abspath( sys.argv[0] ) ) ) + os.sep + dirpath
 		
 		for f in os.listdir( dirpath ):
 			filepath = dirpath + os.sep + f

@@ -49,7 +49,7 @@ class Language():
 		"""
 		
 		if path == None:
-			path = os.path.dirname( os.path.abspath( sys.argv[0] ) ) + os.sep + "i18n"
+			path = os.path.dirname( os.path.realpath( os.path.abspath( sys.argv[0] ) ) ) + os.sep + "i18n"
 		
 		log.debug( "Initializing language \"%s\"." % lang )
 		
