@@ -4,6 +4,10 @@
 import os
 import sys
 import log
+
+# Setting correct working directory
+os.chdir( os.path.dirname( os.path.realpath( os.path.abspath( sys.argv[0] ) ) ) )
+
 from language import Language
 from beershell import *
 from brewery.ingredients import *
