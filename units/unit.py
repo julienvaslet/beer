@@ -374,7 +374,7 @@ class Unit():
 			- list -- the list of all units.
 		"""
 		
-		return cls.units.keys()
+		return list(cls.units.keys())
 		
 		
 class Range(Unit):

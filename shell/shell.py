@@ -282,7 +282,7 @@ class Shell():
 					else:
 						# Partial autocompletion
 						similar_characters = 0
-						
+
 						while similar_characters < len(choices[0]):
 							is_similar = True
 							
