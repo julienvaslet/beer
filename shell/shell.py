@@ -271,19 +271,21 @@ class Shell():
 				choices = self.autocomplete( line )
 				
 				if len(choices) > 0:
+					# Prettify line
+					args = self.parse_line( line, keep_trailing_space=True )
+					line = " ".join( args )
+					
 					characters_to_be_replaced = 1
 					
 					while characters_to_be_replaced < len(line) and line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
 						characters_to_be_replaced += 1
 						
 					# There is no concordance
-					if line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
+					if characters_to_be_replaced + 1 == len(line):
 						characters_to_be_replaced = 0
-				
-					args = self.parse_line( line, keep_trailing_space=True )
 					
 					if len(choices) == 1:
-						line += choices[0][characters_to_be_replaced:] + " "
+						line = line[:(len(line)-characters_to_be_replaced)] + choices[0] + " "
 						line_index = len(line)
 						rewrite_line = True
 						
@@ -306,7 +308,7 @@ class Shell():
 								break
 						
 						if similar_characters > 1 and similar_characters > characters_to_be_replaced:
-							line += choices[0][characters_to_be_replaced:similar_characters]
+							line = line[:(len(line)-characters_to_be_replaced)] + choices[0][:similar_characters]
 							line_index = len(line)
 							rewrite_line = True
 							

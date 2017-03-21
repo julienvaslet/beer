@@ -15,6 +15,9 @@ class Command():
 		- (str) _description: The short description of the command.
 		- (str) _long_description: The long description of the command.
 	"""
+	
+	_options = {}
+	
 
 	def __init__( self, name ):
 		"""Initialize a command.
@@ -63,6 +66,14 @@ class Command():
 		"""
 		
 		return []
+		
+		
+	@classmethod
+	def parse_options( cls, args ):
+		
+		print( cls._options )
+	
+		return {}
 
 
 class Exit(Command):
