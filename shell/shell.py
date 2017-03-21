@@ -269,13 +269,21 @@ class Shell():
 			# Tabulation
 			elif key == "\x09":
 				choices = self.autocomplete( line )
-				args = self.parse_line( line, keep_trailing_space=True )
 				
 				if len(choices) > 0:
-					if len(choices) == 1:
-						args[len(args) - 1] = choices[0] + " "
+					characters_to_be_replaced = 1
+					
+					while characters_to_be_replaced < len(line) and line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
+						characters_to_be_replaced += 1
 						
-						line = " ".join( args )
+					# There is no concordance
+					if line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
+						characters_to_be_replaced = 0
+				
+					args = self.parse_line( line, keep_trailing_space=True )
+					
+					if len(choices) == 1:
+						line += choices[0][characters_to_be_replaced:] + " "
 						line_index = len(line)
 						rewrite_line = True
 						
@@ -297,10 +305,8 @@ class Shell():
 							else:
 								break
 						
-						if similar_characters > 1:
-							args[len(args) - 1] = choices[0][:similar_characters]
-						
-							line = " ".join( args )
+						if similar_characters > 1 and similar_characters > characters_to_be_replaced:
+							line += choices[0][characters_to_be_replaced:similar_characters]
 							line_index = len(line)
 							rewrite_line = True
 							
