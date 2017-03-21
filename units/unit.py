@@ -321,7 +321,7 @@ class Unit():
 	def __lt__( self, value ):
 		
 		if isinstance( value, Range ):
-			return value >= self
+			return value > self
 			
 		elif isinstance( value, Unit ):
 			return self._value < value.get_value( unit=self._unit )
@@ -336,7 +336,7 @@ class Unit():
 	def __le__( self, value ):
 	
 		if isinstance( value, Range ):
-			return value > self
+			return value >= self
 				
 		else:
 			return self < value or self == value
@@ -345,7 +345,7 @@ class Unit():
 	def __gt__( self, value ):
 		
 		if isinstance( value, Range ):
-			return value <= self
+			return value < self
 	
 		elif isinstance( value, Unit ):
 			return self._value > value.get_value( unit=self._unit )
@@ -360,7 +360,7 @@ class Unit():
 	def __ge__( self, value ):
 		
 		if isinstance( value, Range ):
-			return value < self
+			return value <= self
 		else:
 			return self > value or self == value
 	
@@ -517,7 +517,7 @@ class Range(Unit):
 		
 		# Ranges intersection
 		if isinstance( value, Range ):
-			return (value._min == self) or (value._max == self)
+			return (self == value._min) or (self == value._max) or (value == self._min) or (value == self._max)
 			
 		elif isinstance( value, Unit ):
 			return value >= self._min and value <= self._max
