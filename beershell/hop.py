@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from shell import *
 from brewery.ingredients.hop import Hop
+from brewery.ingredients.ingredient import Ingredient
 from language import Language
 from units import *
 
@@ -58,8 +59,9 @@ class List(commands.Command):
 	_options = {
 		"name": { "params": -1, "default": None },
 		"aroma": { "params": 0, "default": False },
-		"bitterness": { "params": 0, "default": False },
+		"bittering": { "params": 0, "default": False },
 		"dual": { "params": 0, "default": False },
+		"alpha_acids": { "params": -1, "default": None },
 		"country": { "params": -1, "default": None },
 		"style": { "params": -1, "default": None },
 		"sort": { "params": 1, "default": None },
@@ -74,10 +76,96 @@ class List(commands.Command):
 	
 		options = List.parse_options( args )
 
-		hops = Hop.list_hops()
+		hops = Hop.list_hops()	
 		
+		printed_hops = 0
+		
+		if options["alpha_acids"] and len(options["alpha_acids"]):
+			comparator = "eq"
+			
+			if options["alpha_acids"][0] in [ ">", "<" ]:
+				if options["alpha_acids"][0] == "<":
+					comparator = "lt"
+				
+				elif options["alpha_acids"][0] == ">":
+					comparator = "gt"
+					
+				options["alpha_acids"] = options["alpha_acids"][1:]
+				
+			percent = unit.Unit.create( options["alpha_acids"] )
+			
+			if isinstance( percent, proportion.Proportion ) or (isinstance( percent, unit.Range ) and isinstance( percent.get_min(), proportion.Proportion )):
+				options["alpha_acids"] = ( comparator, percent )
+				
+			else:
+				shell.error( Language.get( List, "not_an_alpha_acids_percent" ) )
+				options["alpha_acids"] = None
+				
+				return 1
+
 		for hop in hops:
-			shell.print( "%s (%saa)" % ( hop.name, hop.alpha_acids ), lpad=1 )
+			match_options = True
+			
+			# Name filter
+			if match_options and (options["name"] and len(options["name"])):
+			
+				if options["name"].lower() not in hop.name.lower():
+					match_options = False
+			
+			# Purpose filter
+			if match_options and (options["aroma"] or options["bittering"] or options["dual"]):
+				
+				match_options = False
+				
+				if options["aroma"] and hop.purpose == "aroma":
+					match_options = True
+					
+				if options["bittering"] and hop.purpose == "bittering":
+					match_options = True
+					
+				if options["dual"] and hop.purpose == "dual":
+					match_options = True
+			
+			# Country filter
+			# TODO: compare language names and aliases.
+			if match_options and (options["country"] and len(options["country"])):
+				
+				if Ingredient.sanitize_name( options["country"] ) != Ingredient.sanitize_name( hop.country ):
+					match_options = False
+					
+			# Style filter
+			# TODO: compare language names and aliases.
+			if match_options and (options["style"] and len(options["style"])):
+				
+				match_options = False
+				
+				for style in hop.styles:
+					if Ingredient.sanitize_name( options["style"] ) == Ingredient.sanitize_name( style ):
+						match_options = True
+						break
+						
+			# Alpha acids filter
+			if match_options and options["alpha_acids"]:
+			
+				comparator, percent = options["alpha_acids"]
+				
+				if comparator == "eq" and percent != hop.alpha_acids:
+					match_options = False
+					
+				elif comparator == "lt" and percent <= hop.alpha_acids:
+					match_options = False
+					
+				elif comparator == "gt" and percent >= hop.alpha_acids:
+					match_options = False
+			
+			if match_options:
+				shell.print( "%s (%saa)" % ( hop.name, hop.alpha_acids ), lpad=1 )
+				printed_hops += 1	
+			
+		if printed_hops > 0:
+			shell.log( Language.get( List, "n_hops_listed" ) % printed_hops, level=0 )
+		else:
+			shell.log( Language.get( List, "no_hops_found" ), level=0 )
 			
 		return 0
 		

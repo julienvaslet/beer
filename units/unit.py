@@ -301,6 +301,68 @@ class Unit():
 		copy += -1 * value
 		
 		return copy
+		
+		
+	def __eq__( self, value ):
+	
+		if isinstance( value, Range ):
+			return value == self
+		
+		elif isinstance( value, Unit ):
+			return self._value == value.get_value( unit=self._unit )
+			
+		elif value == None:
+			return False
+		
+		else:
+			raise NotImplementedError
+		
+		
+	def __lt__( self, value ):
+		
+		if isinstance( value, Range ):
+			return value >= self
+			
+		elif isinstance( value, Unit ):
+			return self._value < value.get_value( unit=self._unit )
+			
+		elif value == None:
+			return False
+		
+		else:
+			raise NotImplementedError
+	
+	
+	def __le__( self, value ):
+	
+		if isinstance( value, Range ):
+			return value > self
+				
+		else:
+			return self < value or self == value
+		
+		
+	def __gt__( self, value ):
+		
+		if isinstance( value, Range ):
+			return value <= self
+	
+		elif isinstance( value, Unit ):
+			return self._value > value.get_value( unit=self._unit )
+			
+		elif value == None:
+			return False
+			
+		else:
+			raise NotImplementedError
+		
+	
+	def __ge__( self, value ):
+		
+		if isinstance( value, Range ):
+			return value < self
+		else:
+			return self > value or self == value
 	
 	
 	def copy( self ):
@@ -386,8 +448,8 @@ class Range(Unit):
 		self._unit = self._min._unit
 		self._value = self.get_value()
 		
-		
-	#TODO: Should keep?
+	
+	#TODO: Should keep? (used for type comparison in hop list command)
 	def get_min( self ):
 		return self._min
 		
@@ -449,4 +511,57 @@ class Range(Unit):
 		self._value = self.get_value()
 		
 		return self
+		
+		
+	def __eq__( self, value ):
+		
+		# Ranges intersection
+		if isinstance( value, Range ):
+			return (value._min == self) or (value._max == self)
+			
+		elif isinstance( value, Unit ):
+			return value >= self._min and value <= self._max
+		
+		elif value == None:
+			return False
+			
+		else:
+			raise NotImplementedError
+		
+		
+	def __lt__( self, value ):
+		
+		if isinstance( value, Range ):
+			return self._max < value._min
+			
+		elif isinstance( value, Unit ):
+			return self._max < value
+		
+		elif value == None:
+			return False
+			
+		else:
+			raise NotImplementedError
+			
+		
+	def __le__( self, value ):
+		return not (self > value)
+		
+		
+	def __gt__( self, value ):
+		
+		if isinstance( value, Range ):
+			return self._min > value._max
+			
+		elif isinstance( value, Unit ):
+			return self._min > value
+		
+		elif value == None:
+			return False
+			
+		else:
+			raise NotImplementedError
+			
+	def __ge__( self, value ):
+		return not ( self < value )
 
