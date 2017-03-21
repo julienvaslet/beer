@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .shell import *
 from language import Language
+import log
 
 class Command():
 	"""Represents a shell command.
@@ -14,6 +15,9 @@ class Command():
 		- (list) aliases: The aliases' list of the command.
 		- (str) _description: The short description of the command.
 		- (str) _long_description: The long description of the command.
+		
+	Class variables:
+		- (dict) options: The command options to be parsed.
 	"""
 	
 	_options = {}
@@ -70,10 +74,70 @@ class Command():
 		
 	@classmethod
 	def parse_options( cls, args ):
+		"""Parses options from arguments list.
 		
-		print( cls._options )
+		Parses options from arguments list to an associative array where
+		options names are the keys. Unknown options are ignored and values that
+		are not linked to an options are stacked in the "_" attribute of the
+		returned dictionary.
+		
+		Parameters:
+			- (list) args: The command line arguments.
+			
+		Return value:
+			- (dict) -- the parsed options.
+		"""
 	
-		return {}
+		options = { "_": [] }
+		
+		# Setting defaults
+		for opt in cls._options:
+			options[opt] = cls._options[opt]["default"] if "default" in cls._options[opt] else None
+		
+		current_option = None
+		values_to_parse = 0
+		
+		for arg in args:
+			
+			match = re.match( r"^--?([a-zA-Z0-9_-]+)$", arg )
+			
+			if match:
+				if values_to_parse > 0 or (values_to_parse == -1 and len(options[current_option]) == 0):
+					log.warn( Language.get( Command, "missing_value" ) % current_option )
+			
+				current_option = match.group( 1 ).lower()
+				
+				if current_option in cls._options:
+					values_to_parse = cls._options[current_option]["params"] if "params" in cls._options[current_option] else 0
+				
+					if values_to_parse == 0:
+						options[current_option] = True
+					else:
+						options[current_option] = ""
+				
+				else:
+					log.warn( Language.get( Command, "unknown_option" ) % current_option )
+					current_option = None
+			
+			else:
+				if values_to_parse > 0 or values_to_parse == -1:
+				
+					if len(options[current_option]):
+						options[current_option] += " " + arg
+					else:
+						options[current_option] = arg
+						
+					if values_to_parse > 0:
+						values_to_parse -= 1
+				
+				else:
+					options["_"].append( arg )
+					
+				
+		if values_to_parse > 0 or (values_to_parse == -1 and len(options[current_option]) == 0):
+			log.warn( Language.get( Command, "missing_value" ) % current_option )
+	
+		return options
 
 
 class Exit(Command):

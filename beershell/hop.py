@@ -56,14 +56,14 @@ class Shell(shell.Shell):
 class List(commands.Command):
 
 	_options = {
-		"name": { "params": -1 },
-		"aroma": { "params": 0 },
-		"bitterness": { "params": 0 },
-		"dual": { "params": 0 },
-		"country": { "params": -1 },
-		"style": { "params": -1 },
-		"sort": { "params": 1 },
-		"limit": { "params": 1 }
+		"name": { "params": -1, "default": None },
+		"aroma": { "params": 0, "default": False },
+		"bitterness": { "params": 0, "default": False },
+		"dual": { "params": 0, "default": False },
+		"country": { "params": -1, "default": None },
+		"style": { "params": -1, "default": None },
+		"sort": { "params": 1, "default": None },
+		"limit": { "params": 1, "default": None }
 	}
 
 	def __init__( self ):
@@ -73,9 +73,7 @@ class List(commands.Command):
 	def run( self, shell, args ):
 	
 		options = List.parse_options( args )
-		print( args, options )
-	
-		return 0
+
 		hops = Hop.list_hops()
 		
 		for hop in hops:
