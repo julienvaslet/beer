@@ -426,7 +426,7 @@ class Shell():
 		return line
 		
 		
-	def print( self, message, end="\n", left_text="", lpad=0 ):
+	def print( self, message, end="\n", left_text="", lpad=0, break_words=False, justify_text=True ):
 		"""Prints a message to the shell output.
 		
 		Prints a message to the shell output. This message could be left-padded
@@ -437,6 +437,8 @@ class Shell():
 			- (str) end: The end of message separator (default "\n").
 			- (str) left_text: The text printed in the left padding (default: "").
 			- (int) lpad: The left padding width (default: 0).
+			- (bool) break_words: Break too long words at end of lines (default: False).
+			- (bool) justify_text: Change the words spacing to fit the shell width (default: True).
 		
 		Returns:
 			- int -- the number of lines printed.
@@ -455,8 +457,47 @@ class Shell():
 				i = 0
 				while i < len( msg ):
 					pad = left_text if i == 0 else ""
-					line = msg[i:i+line_length]
-					i += line_length
+					
+					current_line_length = line_length if i + line_length < len(msg) else len(msg) - i
+					
+					if not break_words and i + current_line_length < len(msg):
+						while current_line_length > 0 and msg[i+current_line_length] != " ":
+							current_line_length -= 1
+					
+						# Line does not contains any spaces, words are breaked.
+						if current_line_length == 0:
+							current_line_length = line_length
+					
+					line = msg[i:i+current_line_length].strip()
+					i += current_line_length
+					
+					# Justify active, smaller line than shell with, and not the last one.
+					if justify_text and len(line) < line_length and i < len(msg):
+						spaces_to_add = line_length - len(line)
+						spaces = len(re.findall( r"\s+", line ))
+						extended_spaces = len(re.findall( r"[,\.]\s", line ))
+						
+						if spaces > 0 and spaces_to_add >= 2 * spaces:
+							space_width = spaces_to_add // spaces
+							spaces_to_add -= space_width
+							line = line.replace( " ", " " * space_width )
+							
+						if extended_spaces > 0:
+							extended_space_width = spaces_to_add // extended_spaces
+							spaces_to_add = spaces_to_add % extended_spaces
+							
+							line = re.sub( r"([,\.]\s)", r"\1%s" % ( " " * extended_space_width ), line )
+							
+							# Remaining spaces
+							if spaces_to_add > 0:
+								line = re.sub( r"([,\.]\s)", r"\1 ", line, count=spaces_to_add )
+								spaces_to_add = 0
+						
+						# Remaining spaces (for lines without punctuation)
+						if spaces_to_add > 0:
+							line = re.sub( r"(\s)", r"\1 ", line, count=spaces_to_add )
+							spaces_to_add = 0
+						
 					print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
 					lines_printed += 1
 		

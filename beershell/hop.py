@@ -172,7 +172,7 @@ class List(commands.Command):
 		
 	def autocomplete( self, shell, args ):
 	
-		choices = []	
+		choices = []
 		return choices
 
 
