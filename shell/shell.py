@@ -22,7 +22,7 @@ class Shell():
 	
 	Attributes:
 		- (str) _title: Title of shell prompts.
-		- (int) _width: Width of the shell (default: 80).
+		- (int) _width: Width of the shell (default: 79).
 		- (bool) _running: Status of the shell session.
 		- (int) _verbosity: Level of verbosity (default: 1).
 		- (dict) _commands: Dictionary of registered commands.
@@ -35,7 +35,7 @@ class Shell():
 		Language.load( "shell.ini" )
 		
 		self._title = title
-		self._width = 80
+		self._width = 79
 		self._running = False
 		self._verbosity = verbosity
 		self._commands = {}
