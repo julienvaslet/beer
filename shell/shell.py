@@ -475,28 +475,30 @@ class Shell():
 					if justify_text and len(line) < line_length and i < len(msg):
 						spaces_to_add = line_length - len(line)
 						spaces = len(re.findall( r"\s+", line ))
-						extended_spaces = len(re.findall( r"[,\.]\s", line ))
+						extended_spaces = len(re.findall( r"[,\.\?!;:]\s", line ))
 						
-						if spaces > 0 and spaces_to_add >= 2 * spaces:
-							space_width = spaces_to_add // spaces
-							spaces_to_add -= space_width
-							line = line.replace( " ", " " * space_width )
-							
-						if extended_spaces > 0:
-							extended_space_width = spaces_to_add // extended_spaces
-							spaces_to_add = spaces_to_add % extended_spaces
-							
-							line = re.sub( r"([,\.]\s)", r"\1%s" % ( " " * extended_space_width ), line )
-							
+						if spaces > 0:
+							# Extra spaces are first equally distributed
+							if spaces_to_add > spaces:
+								space_width = spaces_to_add // spaces
+								spaces_to_add = spaces_to_add % spaces
+								
+								line = re.sub( r"(\s+)", r"\1%s" % ( " " * space_width ), line ) 
+								
 							# Remaining spaces
 							if spaces_to_add > 0:
-								line = re.sub( r"([,\.]\s)", r"\1 ", line, count=spaces_to_add )
-								spaces_to_add = 0
-						
-						# Remaining spaces (for lines without punctuation)
-						if spaces_to_add > 0:
-							line = re.sub( r"(\s)", r"\1 ", line, count=spaces_to_add )
-							spaces_to_add = 0
+								
+								if extended_spaces > 0:
+									line = re.sub( r"([,\.\?!;:]\s)", r"\1 ", line, count=spaces_to_add )
+									spaces_to_add -= extended_spaces
+									
+									# Last spaces oddly added to firsts extended points
+									#if spaces_to_add > 0:
+									#	line = re.sub( r"([,\.\?!;:]\s)", r"\1 ", line, count=spaces_to_add )
+								
+								# Last spaces oddly added.
+								if spaces_to_add > 0:
+									line = re.sub( r"(\s+)", r"\1 ", line, count=spaces_to_add )
 						
 					print( "%s%s" % ( pad.ljust( lpad ), line ), end=end )
 					lines_printed += 1
