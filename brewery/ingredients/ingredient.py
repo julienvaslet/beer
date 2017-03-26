@@ -77,7 +77,7 @@ class Ingredient():
 		
 		if os.path.isfile( filepath ):
 			config = configparser.ConfigParser()
-			config.read( filepath )
+			config.read( filepath, encoding="utf-8" )
 			
 			if "ingredient" in config:
 				
