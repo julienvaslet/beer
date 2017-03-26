@@ -93,7 +93,7 @@ class Language():
 				language._files.add( filename )
 			
 				config = configparser.ConfigParser()
-				config.read( language._path + os.sep + language._language + os.sep + filename )
+				config.read( language._path + os.sep + language._language + os.sep + filename, encoding="utf-8" )
 			
 				for section in config:
 					for key in config[section]:
