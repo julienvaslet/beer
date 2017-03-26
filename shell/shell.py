@@ -3,8 +3,16 @@
 import sys
 import re
 import os
-import tty
-import termios
+
+try:
+	import termios
+	import tty
+	
+	SHELL_SYSTEM = "unix"
+
+except ImportError:
+	import msvcrt
+	SHELL_SYSTEM = "windows"
 
 from . import commands
 from language import Language
@@ -110,28 +118,45 @@ class Shell():
 		
 		sequence = b""
 
-		fd = sys.stdin.fileno()
-		old_settings = termios.tcgetattr( fd )
-		new_settings = termios.tcgetattr( fd )
-		new_settings[3] = new_settings[3] & ~termios.ICANON & ~termios.ECHO
-		new_settings[6][termios.VMIN] = 1
-		new_settings[6][termios.VTIME] = 0
+		if SHELL_SYSTEM == "unix":
+			fd = sys.stdin.fileno()
+			old_settings = termios.tcgetattr( fd )
+			new_settings = termios.tcgetattr( fd )
+			new_settings[3] = new_settings[3] & ~termios.ICANON & ~termios.ECHO
+			new_settings[6][termios.VMIN] = 1
+			new_settings[6][termios.VTIME] = 0
 
-		termios.tcsetattr( fd, termios.TCSANOW, new_settings )
+			termios.tcsetattr( fd, termios.TCSANOW, new_settings )
+
+			escape_regex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
+
+			try:
+				complete = False
+
+				while not complete:
+					sequence += os.read( fd, 1 )
+
+					if not escape_regex.match( sequence ):
+						complete = True
+
+			finally:
+				termios.tcsetattr( fd, termios.TCSADRAIN, old_settings )
 		
-		escape_regex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
-
-		try:
+		# Windows case
+		else:
+			escape_regex = re.compile( b'^(\xe0|\000)$' )
 			complete = False
 			
 			while not complete:
-				sequence += os.read( fd, 1 )
-			
+				s = msvcrt.getch()
+				
+				if s == b'\r':
+					s = b'\n'
+					
+				sequence += s
+				
 				if not escape_regex.match( sequence ):
 					complete = True
-
-		finally:
-			termios.tcsetattr( fd, termios.TCSADRAIN, old_settings )
 
 		return sequence
 		
