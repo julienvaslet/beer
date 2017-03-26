@@ -491,10 +491,6 @@ class Shell():
 								if extended_spaces > 0:
 									line = re.sub( r"([,\.\?!;:]\s)", r"\1 ", line, count=spaces_to_add )
 									spaces_to_add -= extended_spaces
-									
-									# Last spaces oddly added to firsts extended points
-									#if spaces_to_add > 0:
-									#	line = re.sub( r"([,\.\?!;:]\s)", r"\1 ", line, count=spaces_to_add )
 								
 								# Last spaces oddly added.
 								if spaces_to_add > 0:
