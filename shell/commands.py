@@ -77,8 +77,8 @@ class Command():
 		"""Parses options from arguments list to an ordered array.
 		
 		Parses options from arguments list to an orderd array where elements
-		are tuples (option name, value). Unknown options are ignored and other
-		arguments are added as string to the list.
+		are tuples (option name, value). Unknown options and other arguments
+		are added as string to the list.
 		
 		Parameters:
 			- (list) args: The command line arguments.
@@ -96,7 +96,7 @@ class Command():
 		
 		for arg in args:
 			
-			match = re.match( r"^--?([a-zA-Z0-9_-]+)$", arg )
+			match = re.match( r"^-(?:-?([a-zA-Z0-9][a-zA-Z0-9_-]*)?)$", arg )
 			
 			if match:
 				if current_option != None:
@@ -105,7 +105,7 @@ class Command():
 						
 					options.append( (current_option, current_value) )
 			
-				current_option = match.group( 1 ).lower()
+				current_option = match.group( 1 ).lower() if match.group( 1 ) else None
 				
 				if current_option in cls._options:
 					values_to_parse = cls._options[current_option]["params"] if "params" in cls._options[current_option] else 0
@@ -118,6 +118,8 @@ class Command():
 				else:
 					if not silent:
 						log.warn( Language.get( Command, "unknown_option" ) % current_option )
+					
+					options.append( match.group( 0 ) )
 					
 					current_option = None
 					current_value = None

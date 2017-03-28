@@ -302,14 +302,20 @@ class Shell():
 					
 					characters_to_be_replaced = 1
 					
-					while characters_to_be_replaced < len(line) and line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
+					while characters_to_be_replaced <= len(line) and line[-characters_to_be_replaced:].lower() != choices[0][:characters_to_be_replaced].lower():
 						characters_to_be_replaced += 1
 						
 					# There is no concordance
-					if characters_to_be_replaced + 1 == len(line):
+					if characters_to_be_replaced > len(line):
 						characters_to_be_replaced = 0
 					
+					# Check for the full replacement (repetitive character/pattern cases)
+					else:
+						while characters_to_be_replaced + 1 < len(line) and line[-(characters_to_be_replaced + 1):].lower() == choices[0][:characters_to_be_replaced + 1].lower():
+							characters_to_be_replaced += 1
+					
 					if len(choices) == 1:
+						#print( "\n", choices, line, len( line), characters_to_be_replaced )
 						line = line[:(len(line)-characters_to_be_replaced)] + choices[0] + " "
 						line_index = len(line)
 						rewrite_line = True

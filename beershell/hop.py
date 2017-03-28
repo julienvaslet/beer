@@ -173,6 +173,47 @@ class List(commands.Command):
 	def autocomplete( self, shell, args ):
 	
 		choices = []
+		options = List.parse_options_as_array( args, silent=True )
+		last_option = options[len(options) - 1]
+		defined_options = []
+		
+		for option in options:
+			if isinstance(option, tuple):
+				defined_options.append( option[0] )
+		
+		# Specific option autocompletion
+		if isinstance(last_option, tuple):
+		
+			if last_option[0] == "country":
+				a = 1
+			
+			elif last_option[0] == "style":
+				a = 1
+			
+			# No autocompletion on alpha_acids 
+			#elif last_option[0] == "alpha_acids":
+			
+			# No autocompletion on --name
+			#elif last_option[0] == "name":
+
+			
+			elif last_option[0] == "sort":
+				a = 1
+			
+			elif last_option[0] == "limit":
+				a = 1
+		
+		# New option
+		elif isinstance(last_option, str):
+			match = re.match( r"^-(?:-([a-zA-Z0-9][a-zA-Z0-9_-]*)?)?$", last_option )
+			
+			if match:
+				last_opt = match.group( 1 ) if match.group( 1 ) else ""
+				
+				for opt in self._options:
+					if opt not in defined_options and (len(last_opt) == 0 or last_opt == opt[:len(last_opt)]):
+						choices.append( "--%s" % opt )
+		
 		return choices
 
 
