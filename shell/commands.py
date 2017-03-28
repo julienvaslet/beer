@@ -73,7 +73,7 @@ class Command():
 		
 	
 	@classmethod
-	def parse_options_as_array( cls, args ):
+	def parse_options_as_array( cls, args, silent=False ):
 		"""Parses options from arguments list to an ordered array.
 		
 		Parses options from arguments list to an orderd array where elements
@@ -82,6 +82,7 @@ class Command():
 		
 		Parameters:
 			- (list) args: The command line arguments.
+			- (bool) silent: Disable warning messages.
 			
 		Return value:
 			- (list) -- the parsed options.
@@ -99,7 +100,7 @@ class Command():
 			
 			if match:
 				if current_option != None:
-					if values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0):
+					if not silent and (values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0)):
 						log.warn( Language.get( Command, "missing_value" ) % current_option )
 						
 					options.append( (current_option, current_value) )
@@ -115,7 +116,8 @@ class Command():
 						current_value = ""
 				
 				else:
-					log.warn( Language.get( Command, "unknown_option" ) % current_option )
+					if not silent:
+						log.warn( Language.get( Command, "unknown_option" ) % current_option )
 					
 					current_option = None
 					current_value = None
@@ -134,7 +136,7 @@ class Command():
 				
 				else:
 					if current_option != None:
-						if values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0):
+						if not silent and (values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0)):
 							log.warn( Language.get( Command, "missing_value" ) % current_option )
 			
 						options.append( (current_option, current_value) )
@@ -146,7 +148,7 @@ class Command():
 					options.append( arg )
 			
 		if current_option != None:
-			if values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0):
+			if not silent and (values_to_parse > 0 or (values_to_parse == -1 and len(current_value) == 0)):
 				log.warn( Language.get( Command, "missing_value" ) % current_option )
 				
 			options.append( (current_option, current_value) )
