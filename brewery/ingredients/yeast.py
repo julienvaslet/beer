@@ -31,7 +31,7 @@ class Yeast(Ingredient):
 		
 		
 	def is_liquid( self ):
-		return self.liquid == "liquid"
+		return self.form == "liquid"
 		
 		
 	@classmethod

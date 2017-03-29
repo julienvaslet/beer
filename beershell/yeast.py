@@ -60,6 +60,7 @@ class List(commands.Command):
 		"name": { "params": -1, "default": None },
 		"dry": { "params": 0, "default": False },
 		"liquid": { "params": 0, "default": False },
+		"attenuation": { "params": -1, "default": None },
 		"style": { "params": -1, "default": None },
 		"sort": { "params": 1, "default": None },
 		"limit": { "params": 1, "default": None }
@@ -76,6 +77,18 @@ class List(commands.Command):
 		yeasts = Yeast.list_yeasts()	
 		
 		printed_yeasts = 0
+		
+		if options["attenuation"] and len(options["attenuation"]):
+			percent = unit.Unit.create( options["attenuation"] )
+			
+			if isinstance( percent, proportion.Proportion ) or (isinstance( percent, unit.Range ) and isinstance( percent.get_min(), proportion.Proportion )):
+				options["attenuation"] = percent
+				
+			else:
+				shell.error( Language.get( List, "not_an_attenuation_percent" ) )
+				options["attenuation"] = None
+				
+				return 1
 
 		for yeast in yeasts:
 			match_options = True
@@ -103,10 +116,14 @@ class List(commands.Command):
 				
 				match_options = False
 				
-				for style in hop.styles:
+				for style in yeast.styles:
 					if Ingredient.sanitize_name( options["style"] ) == Ingredient.sanitize_name( style ):
 						match_options = True
 						break
+			
+			# Attenuation filter
+			if match_options and options["attenuation"]:
+				match_options = (options["attenuation"] == yeast.attenuation)
 			
 			if match_options:
 				shell.print( "%s" % yeast.name, lpad=1 )
