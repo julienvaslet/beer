@@ -160,12 +160,12 @@ class List(commands.Command):
 			
 			if match_options:
 				shell.print( "%s (%saa)" % ( hop.name, hop.alpha_acids ), lpad=1 )
-				printed_hops += 1	
+				printed_hops += 1
 			
 		if printed_hops > 0:
 			shell.log( Language.get( List, "n_hops_listed" ) % printed_hops, level=0 )
 		else:
-			shell.log( Language.get( List, "no_hops_found" ), level=0 )
+			shell.log( Language.get( List, "no_hop_found" ), level=0 )
 			
 		return 0
 		

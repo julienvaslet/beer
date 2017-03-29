@@ -4,6 +4,7 @@ from shell import *
 from language import Language
 from . import convert
 from . import hop
+from . import yeast
 
 class BeerShell(shell.Shell):
 
@@ -12,6 +13,7 @@ class BeerShell(shell.Shell):
 		Language.load( "beershell.ini" )
 		self.add_command( convert.Command() )
 		self.add_command( hop.Command() )
+		self.add_command( yeast.Command() )
 	
 	
 	def banner( self ):

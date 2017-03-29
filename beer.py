@@ -35,6 +35,7 @@ if __name__ == "__main__":
 	
 		Language.initialize( lang="en" )
 		Language.load( "hops.ini" )
+		Language.load( "yeasts.ini" )
 		Language.load( "ingredients.ini" )
 		ingredient.Ingredient.load_directory( "data%singredients" % os.sep )
 	
