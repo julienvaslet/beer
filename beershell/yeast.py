@@ -242,7 +242,7 @@ class Info(commands.Command):
 					shell.print( yeast.attenuation.to_string(), left_text=" %s" % Language.get( Info, "attenuation" ), lpad=left_length )
 					
 				if yeast.temperature:
-					shell.print( yeast.temperature.to_string(), left_text=" %s" % Language.get( Info, "temperature" ), lpad=left_length )
+					shell.print( yeast.temperature.to_string( unit="°C" ), left_text=" %s" % Language.get( Info, "temperature" ), lpad=left_length )
 					
 				if yeast.alcohol_tolerance:
 					shell.print( yeast.alcohol_tolerance.to_string(), left_text=" %s" % Language.get( Info, "alcohol_tolerance" ), lpad=left_length )
