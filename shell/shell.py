@@ -272,7 +272,7 @@ class Shell():
 			
 			try:
 				#print( rawkey )
-				key = rawkey.decode( "utf-8" )
+				key = rawkey.decode( "utf-8", "replace" )
 				
 			except UnicodeDecodeError:
 				continue
