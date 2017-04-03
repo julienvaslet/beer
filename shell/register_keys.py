@@ -4,6 +4,7 @@
 import sys
 import re
 import os
+import fcntl
 
 from collections import OrderedDict
 
@@ -20,68 +21,73 @@ except ImportError:
 
 
 def getch():
-    sequence = b""
+	sequence = b""
 
-    if SHELL_SYSTEM == "unix":
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        new_settings = termios.tcgetattr(fd)
-        new_settings[3] = new_settings[3] & ~termios.ICANON & ~termios.ECHO
-        new_settings[6][termios.VMIN] = 1
-        new_settings[6][termios.VTIME] = 0
+	if SHELL_SYSTEM == "unix":
+		fd = sys.stdin.fileno()
+		old_settings = termios.tcgetattr(fd)
+		new_settings = termios.tcgetattr(fd)
+		new_settings[3] = new_settings[3] & ~termios.ICANON & ~termios.ECHO
+		new_settings[6][termios.VMIN] = 0
+		new_settings[6][termios.VTIME] = 0
 
-        termios.tcsetattr(fd, termios.TCSANOW, new_settings)
-        escape_regex = re.compile(b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$')
+		termios.tcsetattr( fd, termios.TCSANOW, new_settings )
+		
+		# Non-block input
+		flag = fcntl.fcntl( fd, fcntl.F_GETFL )
+		fcntl.fcntl( fd, fcntl.F_SETFL, flag | os.O_NONBLOCK )
 
-        try:
-            complete = False
+		try:
+			while len(sequence) == 0:
+				ch = os.read( fd, 1 )
+				
+				while ch != None and len(ch) > 0:
+					sequence += ch
+					ch = os.read( fd, 1 )
 
-            while not complete:
-                sequence += os.read(fd, 1)
+		finally:
+			termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+			fcntl.fcntl( fd, fcntl.F_SETFL, flag )
 
-                if not escape_regex.match(sequence):
-                    complete = True
+	# Windows case
+	else:
+		while len(sequence) == 0:
+			while msvcrt.kbhit():
+				s = msvcrt.getch()
 
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+				if s == b'\r':
+					s = b'\n'
 
-    # Windows case
-    else:
-        escape_regex = re.compile( b'^(\x00|\xe0)$' )
-        complete = False
+				sequence += s
 
-        while not complete:
-            s = msvcrt.getch()
-
-            if s == b'\r':
-                s = b'\n'
-
-            sequence += s
-
-            if not escape_regex.match(sequence):
-                complete = True
-
-    return sequence
+	return sequence
 
 
 if __name__ == "__main__":
-    keys = OrderedDict()
-    keynames = [ "ENTER", "F1", "F2" ]
+	keys = OrderedDict()
+	keys["ENTER"] = '\n'
+	keynames = [ "ESCAPE", "F1", "F2" ] #, "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "INSERT", "DELETE" ]
 
-    for key in keynames:
-        print( "Please type %s key (ENTER to skip): " % key, end="", flush=True )
-        value = getch()
+	for key in keynames:
+		print( "Please type %s key (ENTER to skip): " % key, end="", flush=True )
+		value = getch()
 
-        try:
-            value = value.decode( "utf-8", "replace" )
+		try:
+			value = value.decode( "utf-8", "replace" )
 
-            if value == "\n" and key != "ENTER":
-                print( "(skipping)" )
-            else:
-                print( value )
-                keys[key] = value
+			if value == "\n":
+				print( "(skipped)" )
+				keys[key] = None
+			else:
+				print( repr(value) )
+				keys[key] = value
 
-        except UnicodeDecodeError:
-            print( "\n[!] Unable to decode \"%s\" as UTF-8." % value )
+		except UnicodeDecodeError:
+			print( "\n[!] Unable to decode \"%s\" as UTF-8." % repr(value) )
 
-    print( keys )
+	with open( "keys_%s.py" % SHELL_SYSTEM, "w" ) as f:
+		f.write( "# -*- coding: utf-8 -*-\n\n" )
+
+		for key in keys:
+			f.write( "%s = %s\n" % (key, repr(keys[key])) )
+	
