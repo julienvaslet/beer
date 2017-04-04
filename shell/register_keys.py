@@ -72,7 +72,7 @@ def extract_regex( values ):
 	
 		if len(keys):
 			for key in keys:
-				re_key = re.sub( r"([\?\[\]\(\)\.\{\}\;\+\*\^\$\-])", r"\\\1", re.sub( r"^'|'$", "", repr( key ) ) )
+				re_key = re.sub( r"([\?\[\]\(\)\.\{\}\;\+\*\^\$\-])", r"\\\1", re.sub( r"^b'|'$", "", repr( bytes([key]) ) ) )
 				regex_choices.append( re_key + extract_regex( values[key] ) )
 		
 			regex = "(%s)?" % "|".join( regex_choices )
@@ -82,7 +82,7 @@ def extract_regex( values ):
 
 if __name__ == "__main__":
 	keys = OrderedDict()
-	keys["ENTER"] = '\n'
+	keys["ENTER"] = b'\n'
 	keynames = [
 		"ESCAPE",
 		"TABULATION",
@@ -99,25 +99,19 @@ if __name__ == "__main__":
 		print( "Please type %s key (ENTER to skip): " % key, end="", flush=True )
 		value = getch()
 
-		try:
-			value = value.decode( "utf-8", "replace" )
-
-			if value == "\n":
-				print( "(skipped)" )
-				keys[key] = None
-			else:
-				print( repr(value) )
-				keys[key] = value
-
-		except UnicodeDecodeError:
-			print( "\n[!] Unable to decode \"%s\" as UTF-8." % repr(value) )
+		if value == b'\n':
+			print( "(skipped)" )
+			keys[key] = None
+		else:
+			print( re.sub( "^b", "", repr(value) ) )
+			keys[key] = value
 
 	escape_characters = {}
-	
+
 	for key in keys:
 		dest_dict = escape_characters
-		
-		for character in keys[key][:-1]:
+
+		for character in bytearray(keys[key])[:-1]:
 			if character not in dest_dict:
 				dest_dict[character] = {}
 			
@@ -125,7 +119,7 @@ if __name__ == "__main__":
 	
 	escape_regex = "^%s$" % extract_regex( escape_characters )
 
-	with open( "keys_%s.py" % SHELL_SYSTEM, "w" ) as f:
+	with open( "keys_%s.py" % SHELL_SYSTEM, "w", encoding="utf-8" ) as f:
 		f.write( "# -*- coding: utf-8 -*-\n\n" )
 		
 		f.write( "# Key escape regular expression\n" )
@@ -134,5 +128,5 @@ if __name__ == "__main__":
 
 		f.write( "# Registered keys\n" )
 		for key in keys:
-			f.write( "%s = %s\n" % (key, repr(keys[key])) )
+			f.write( "%s = %s\n" % (key, re.sub( "^b", "", repr(keys[key]))) )
 	
