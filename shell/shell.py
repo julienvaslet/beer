@@ -7,11 +7,14 @@ import os
 try:
 	import termios
 	import tty
+	from . import keys_unix as keys
 	
 	SHELL_SYSTEM = "unix"
 
 except ImportError:
 	import msvcrt
+	from . import keys_windows as keys
+	
 	SHELL_SYSTEM = "windows"
 
 from . import commands
@@ -271,28 +274,27 @@ class Shell():
 			rawkey = self.getch()
 			
 			try:
-				#print( rawkey )
 				key = rawkey.decode( "utf-8", "replace" )
 				
 			except UnicodeDecodeError:
 				continue
 			
 			# End of line
-			if key == "\x0a":
+			if key == keys.ENTER:
 				line_read = True
 				
 			# Home
-			elif key == "\x1b[H":
+			elif key == keys.HOME:
 				line_index = 0
 				rewrite_line = True
 				
 			# End
-			elif key == "\x1b[F":
+			elif key == keys.END:
 				line_index = len(line)
 				rewrite_line = True
 			
 			# Tabulation
-			elif key == "\x09":
+			elif key == keys.TABULATION:
 				choices = self.autocomplete( line )
 				
 				if len(choices) > 0:
@@ -380,7 +382,7 @@ class Shell():
 			#	print( "DOOOWN" )
 			
 			# Left
-			elif key == "\x1b[D":
+			elif key == keys.LEFT:
 			
 				if line_index > 0:
 					line_index -= 1
@@ -391,7 +393,7 @@ class Shell():
 					
 			# Ctrl+Left
 			# Jump at the beginning of the word
-			elif key == "\x1b[1;5D":
+			elif key == keys.CTRL_LEFT:
 			
 				# Purge separators
 				while line_index > 0 and line[line_index - 1] in WORD_SEPARATORS:
@@ -404,7 +406,7 @@ class Shell():
 				rewrite_line = True
 			
 			# Right
-			elif key == "\x1b[C":
+			elif key == keys.RIGHT:
 			
 				if line_index < len(line):
 					line_index += 1
@@ -415,7 +417,7 @@ class Shell():
 			
 			# Ctrl+Right
 			# Jump at the end of the word
-			elif key == "\x1b[1;5C":
+			elif key == keys.CTRL_RIGHT:
 			
 				# Purge separators
 				while line_index < len(line) and line[line_index] in WORD_SEPARATORS:
@@ -428,7 +430,7 @@ class Shell():
 				rewrite_line = True
 				
 			# Backspace
-			elif key == "\x7f":
+			elif key == keys.BACKSPACE:
 				if len(line) > 0 and line_index > 0:
 					line = line[:line_index - 1] + line[line_index:]
 					line_index -= 1
@@ -438,7 +440,7 @@ class Shell():
 					should_beep = True
 					
 			# Delete
-			elif key == "\x1b[3~":
+			elif key == keys.DELETE:
 				if len(line) > 0 and line_index < len(line):
 					line = line[:line_index] + line[line_index + 1:]
 					rewrite_line = True

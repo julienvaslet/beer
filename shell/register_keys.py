@@ -66,7 +66,17 @@ def getch():
 if __name__ == "__main__":
 	keys = OrderedDict()
 	keys["ENTER"] = '\n'
-	keynames = [ "ESCAPE", "F1", "F2" ] #, "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "INSERT", "DELETE" ]
+	keynames = [
+		"ESCAPE",
+		"TABULATION",
+		"HOME",
+		"END",
+		"LEFT", "CTRL_LEFT",
+		"RIGHT", "CTRL_RIGHT",
+		"UP",
+		"DOWN",
+		"BACKSPACE",
+		"DELETE" ]
 
 	for key in keynames:
 		print( "Please type %s key (ENTER to skip): " % key, end="", flush=True )

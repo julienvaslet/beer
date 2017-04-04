@@ -2,5 +2,14 @@
 
 ENTER = '\n'
 ESCAPE = '\x1b'
-F1 = None
-F2 = '\x1bOQ'
+TABULATION = '\t'
+HOME = '\x1b[H'
+END = '\x1b[F'
+LEFT = '\x1b[D'
+CTRL_LEFT = '\x1b[1;5D'
+RIGHT = '\x1b[C'
+CTRL_RIGHT = '\x1b[1;5C'
+UP = '\x1b[A'
+DOWN = '\x1b[B'
+BACKSPACE = '\x7f'
+DELETE = '\x1b[3~'
