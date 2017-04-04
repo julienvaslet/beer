@@ -4,13 +4,13 @@
 import sys
 import re
 import os
-import fcntl
 
 from collections import OrderedDict
 
 try:
 	import termios
 	import tty
+	import fcntl
 
 	SHELL_SYSTEM = "unix"
 
