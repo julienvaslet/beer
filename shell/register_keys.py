@@ -61,6 +61,23 @@ def getch():
 				sequence += s
 
 	return sequence
+	
+	
+def extract_regex( values ):
+	regex = ""
+	regex_choices = []
+
+	if isinstance( values, dict ):
+		keys = values.keys()
+	
+		if len(keys):
+			for key in keys:
+				re_key = re.sub( r"([\?\[\]\(\)\.\{\}\;\+\*\^\$\-])", r"\\\1", re.sub( r"^'|'$", "", repr( key ) ) )
+				regex_choices.append( re_key + extract_regex( values[key] ) )
+		
+			regex = "(%s)?" % "|".join( regex_choices )
+
+	return regex
 
 
 if __name__ == "__main__":
@@ -95,9 +112,27 @@ if __name__ == "__main__":
 		except UnicodeDecodeError:
 			print( "\n[!] Unable to decode \"%s\" as UTF-8." % repr(value) )
 
+	escape_characters = {}
+	
+	for key in keys:
+		dest_dict = escape_characters
+		
+		for character in keys[key][:-1]:
+			if character not in dest_dict:
+				dest_dict[character] = {}
+			
+			dest_dict = dest_dict[character]
+	
+	escape_regex = "^%s$" % extract_regex( escape_characters )
+
 	with open( "keys_%s.py" % SHELL_SYSTEM, "w" ) as f:
 		f.write( "# -*- coding: utf-8 -*-\n\n" )
+		
+		f.write( "# Key escape regular expression\n" )
+		f.write( "# While this expression matches, the key sequence is incomplete\n" )
+		f.write( "escape_regex = b'%s'\n\n" % escape_regex )
 
+		f.write( "# Registered keys\n" )
 		for key in keys:
 			f.write( "%s = %s\n" % (key, repr(keys[key])) )
 	

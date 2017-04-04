@@ -120,6 +120,7 @@ class Shell():
 		"""
 		
 		sequence = b""
+		escape_regex = re.compile( keys.escape_regex )
 
 		if SHELL_SYSTEM == "unix":
 			fd = sys.stdin.fileno()
@@ -131,15 +132,13 @@ class Shell():
 
 			termios.tcsetattr( fd, termios.TCSANOW, new_settings )
 
-			escape_regex = re.compile( b'^(\xc2|\xc3|\x1b(O|\[([0-9]+(;([0-9]+)?)?)?)?)$' )
-
 			try:
 				complete = False
 
 				while not complete:
 					sequence += os.read( fd, 1 )
 
-					if not escape_regex.match( sequence ):
+					if not escape_regex.fullmatch( sequence ):
 						complete = True
 
 			finally:
@@ -147,7 +146,6 @@ class Shell():
 		
 		# Windows case
 		else:
-			escape_regex = re.compile( b'^(\xe0|\000)$' )
 			complete = False
 			
 			while not complete:
@@ -158,7 +156,7 @@ class Shell():
 					
 				sequence += s
 				
-				if not escape_regex.match( sequence ):
+				if not escape_regex.fullmatch( sequence ):
 					complete = True
 
 		return sequence

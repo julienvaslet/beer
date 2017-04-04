@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# Key escape regular expression
+# While this expression matches, the key sequence is incomplete
+escape_regex = b'^(\x1b(\[(3|1(\;(5)?)?)?)?)?$'
+
+# Registered keys
 ENTER = '\n'
 ESCAPE = '\x1b'
 TABULATION = '\t'
