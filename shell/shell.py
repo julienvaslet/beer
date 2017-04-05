@@ -269,13 +269,7 @@ class Shell():
 			last_line_index = line_index
 			last_length = len(line)
 		
-			rawkey = self.getch()
-			
-			try:
-				key = rawkey.decode( "utf-8", "replace" )
-				
-			except UnicodeDecodeError:
-				continue
+			key = self.getch()
 			
 			# End of line
 			if key == keys.ENTER:
@@ -448,10 +442,15 @@ class Shell():
 				
 			# Printable character
 			elif len(key) == 1 and ord(key) >= 32:
-				line = line[:line_index] + key + line[line_index:]
-				line_index += 1
+				try:
+					key = key.decode( "utf-8", "replace" )
+					line = line[:line_index] + key + line[line_index:]
+					line_index += 1
 				
-				rewrite_line = True
+					rewrite_line = True
+				
+				except UnicodeDecodeError:
+					continue
 		
 		os.write( sys.stdout.fileno(), b"\n" )
 		return line

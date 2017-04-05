@@ -128,5 +128,5 @@ if __name__ == "__main__":
 
 		f.write( "# Registered keys\n" )
 		for key in keys:
-			f.write( "%s = %s\n" % (key, re.sub( "^b", "", repr(keys[key]))) )
+			f.write( "%s = %s\n" % (key, repr(keys[key])) )
 	

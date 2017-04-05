@@ -2,19 +2,19 @@
 
 # Key escape regular expression
 # While this expression matches, the key sequence is incomplete
-escape_regex = b'^(\x1b(\[(3|1(\;(5)?)?)?)?)?$'
+escape_regex = b'^(\x1b(\[(1(\;(5)?)?|3)?)?)?$'
 
 # Registered keys
-ENTER = '\n'
-ESCAPE = '\x1b'
-TABULATION = '\t'
-HOME = '\x1b[H'
-END = '\x1b[F'
-LEFT = '\x1b[D'
-CTRL_LEFT = '\x1b[1;5D'
-RIGHT = '\x1b[C'
-CTRL_RIGHT = '\x1b[1;5C'
-UP = '\x1b[A'
-DOWN = '\x1b[B'
-BACKSPACE = '\x7f'
-DELETE = '\x1b[3~'
+ENTER = b'\n'
+ESCAPE = b'\x1b'
+TABULATION = b'\t'
+HOME = b'\x1b[H'
+END = b'\x1b[F'
+LEFT = b'\x1b[D'
+CTRL_LEFT = b'\x1b[1;5D'
+RIGHT = b'\x1b[C'
+CTRL_RIGHT = b'\x1b[1;5C'
+UP = b'\x1b[A'
+DOWN = b'\x1b[B'
+BACKSPACE = b'\x7f'
+DELETE = b'\x1b[3~'
