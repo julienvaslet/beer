@@ -17,6 +17,14 @@ except ImportError:
 	
 	SHELL_SYSTEM = "windows"
 
+	# Switch to UTF-8 output encoding
+	# And reset the terminal window
+	if sys.stdout.encoding != "cp65001":
+		os.system( "echo off" )
+		os.system( "chcp 65001" )
+		sys.stdout.write( "\x1b[A" )
+		sys.stdout.flush()
+
 from . import commands
 from language import Language
 
