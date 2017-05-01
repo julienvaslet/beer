@@ -449,7 +449,8 @@ class Shell():
 					should_beep = True
 				
 			# Printable character
-			elif len(key) == 1 and ord(key) >= 32:
+			# Temporary test to catch unicode sequences
+			elif (len(key) == 1 and ord(key) >= 32) or (len(key) == 2 and key[0] in [keys.UNICODE1[0], keys.UNICODE2[0]]):
 				try:
 					key = key.decode( "utf-8", "replace" )
 					line = line[:line_index] + key + line[line_index:]

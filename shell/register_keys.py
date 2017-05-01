@@ -83,6 +83,8 @@ def extract_regex( values ):
 if __name__ == "__main__":
 	keys = OrderedDict()
 	keys["ENTER"] = b'\n'
+	keys["UNICODE1"] = b'\xc2\x00'
+	keys["UNICODE2"] = b'\xc3\x00'
 	keynames = [
 		"ESCAPE",
 		"TABULATION",

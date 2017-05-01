@@ -2,10 +2,12 @@
 
 # Key escape regular expression
 # While this expression matches, the key sequence is incomplete
-escape_regex = b'^(\x1b(\[(1(\;(5)?)?|3)?)?)?$'
+escape_regex = b'^(\x1b(\[(1(\;(5)?)?|3)?)?|\xc2|\xc3)?$'
 
 # Registered keys
 ENTER = b'\n'
+UNICODE1 = b'\xc2\x00'
+UNICODE2 = b'\xc3\x00'
 ESCAPE = b'\x1b'
 TABULATION = b'\t'
 HOME = b'\x1b[H'
